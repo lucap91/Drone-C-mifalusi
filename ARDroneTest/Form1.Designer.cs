@@ -178,10 +178,12 @@
             this.Controls.Add(this.takeoffButton);
             this.Controls.Add(this.statusStrip);
             this.Controls.Add(this.connettiButton);
+            this.KeyPreview = true;
             this.Name = "Form1";
             this.Text = "mifalusi";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Form1_KeyDown);
             this.statusStrip.ResumeLayout(false);
             this.statusStrip.PerformLayout();
             this.ResumeLayout(false);

@@ -21,7 +21,8 @@ namespace ARDroneTest
         private  Socket sender;
 
 
-        private String cmd; //comando da inviare al drone  
+        private String cmd; //comando da inviare al drone 
+        private String sentCmd; //conserva il valore di cmd dopo la chiamata a sendCmd() che imposta cmd a stringa nulla
         private int seq = 1; //num. seq del pkt udp
         private float speed = (float)0.1;
         private float MAX_SPEED = 10;
@@ -36,6 +37,7 @@ namespace ARDroneTest
         public ARDrone() {
             sender = null;
             cmd = "";
+            sentCmd = "";
             logInfo = "drone non connesso";
             connectedToDrone = false;
         }
@@ -78,18 +80,23 @@ namespace ARDroneTest
             
             //imposta limite altezza
             setMaxAltitude(2);
-            //cmd = "AT*CONFIG=" + (seq++) + ",\"video:video_codec\",\"128\"";
 
-            //invia limite altezza per testare se il drone è connesso
             if (sendCmd())
             {
                 connectedToDrone = true;
                 Console.WriteLine("connesso al drone: " + ardroneIP + ":" + portNum);
+
+                //comando per il video low-res
+                cmd = "AT*CONFIG=" + (seq++) + ",\"video:video_codec\",\"128\"";
+                sendCmd();
+
             }
-            else{
+            else
+            {
                 connectedToDrone = false;
                 Console.WriteLine("non connesso al drone: " + ardroneIP + ":" + portNum);
-              }
+            }
+
             
             
         } //connectToDrone
@@ -124,7 +131,10 @@ namespace ARDroneTest
                 return false;
             }
 
+
+            sentCmd = cmd; //salvo il vecchio valore di cmd
             cmd = "";
+
 
             return true;
         }
@@ -142,7 +152,8 @@ namespace ARDroneTest
         //getter
         public String getLogInfo() { return logInfo; }
         public bool isConnectedToDrone() { return connectedToDrone; }
-
+        public String getCmd() { return cmd; }
+        public String getSentCmd() { return sentCmd; }
 
         
         /* Conversione float -> int
@@ -153,14 +164,14 @@ namespace ARDroneTest
          */
         public int intOfFloat(float f)
         {
-            //### DA TESTARE ###
-
+ 
             //scompone il float nei 4 byte che lo compongono
             byte[] buffer = BitConverter.GetBytes( f );
 
             //interpreta i 4 byte come un intero e ritorna
             return BitConverter.ToInt32(buffer, 0); 
         }
+
 
         //funzioni per settare cmd, chiamare sendCmd dopo
         public void setMaxAltitude(int metres ) {
@@ -172,6 +183,17 @@ namespace ARDroneTest
 
             cmd = "AT*CONFIG=1,\"control:altitude_max\",\"" + metres + "\"";
         }
+
+
+        //calibrazione = assetto piatto
+        public void calibrate()
+        {
+            Console.WriteLine("CALIBRAZIONE");
+            cmd = "AT*FTRIM=" + (seq++);
+        }
+
+
+
 
         //hovering
         public void hover() {
@@ -241,12 +263,7 @@ namespace ARDroneTest
             cmd = "AT*PCMD=" + (seq++) + ",1,0,0,0," + intOfFloat(speed);
         }
 
-        //calibrazione
-        public void calibrate()
-        {
-            Console.WriteLine("CALIBRAZIONE");
-            cmd = "AT*FTRIM=" + (seq++);
-        }
+        
 
     } //class ARDrone
 

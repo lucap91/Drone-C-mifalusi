@@ -28,6 +28,7 @@ namespace ARDroneTest
         
         //processo finestra video
         Process ffplay;
+        bool ffplayProcessStarted; //true se ffplay è stato avviatoed è in execuz.
 
 
         //oggetto drone
@@ -38,6 +39,7 @@ namespace ARDroneTest
         public Form1()
         {
             InitializeComponent();
+            ffplayProcessStarted = false;
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -57,7 +59,9 @@ namespace ARDroneTest
             if (drone.isConnectedToDrone() )
             {
                 status.Text = "Connesso al drone!";
-                 //showVideo();
+                 
+                
+                showVideo();
             }
             else {
                 status.Text = "Connessione non riuscita!";
@@ -77,9 +81,9 @@ namespace ARDroneTest
                     // hides the command window
                     CreateNoWindow = true,
                     // redirect input, output, and error streams..
-                    RedirectStandardError = false,
+                    RedirectStandardError = false, /* da lasciare false entrambi altrim. la finestra parte quando si chiude il form */
                     RedirectStandardOutput = false,
-                    UseShellExecute = false
+                    UseShellExecute = false /* mostra/nasconde la shell che avvia ffplay.exe */
                 }
             };
 
@@ -87,28 +91,37 @@ namespace ARDroneTest
             ffplay.OutputDataReceived += (o, e) => Debug.WriteLine(e.Data ?? "NULL", "ffplay");
             ffplay.ErrorDataReceived += (o, e) => Debug.WriteLine(e.Data ?? "NULL", "ffplay");
             ffplay.Exited += (o, e) => Debug.WriteLine("Exited", "ffplay");
-            ffplay.Start();
 
-            //ShowWindow(ffplay.MainWindowHandle, 10);
 
-           /* ThreadStart ths = new ThreadStart(() => ffplay.Start());
-            Thread th = new Thread(ths);
-            th.Start();*/
-            //video.StartPosition = FormStartPosition.CenterParent;
-            //video.ShowDialog(this);
-            
-            
-            //Thread.Sleep(4000); // you need to wait/check the process started, then...
-            while (!ffplay.Responding) { Thread.Sleep(2); }
+            //se il proc. è stato avviato bene Start() ritorna true
+            try
+            {
+                if (ffplay.Start())
+                {
+                    ffplayProcessStarted = true;
 
-            // child, new parent
-            // make 'this' the parent of ffmpeg (presuming you are in scope of a Form or Control)
-            SetParent(ffplay.MainWindowHandle, this.Handle);
-            //ShowWindow(ffplay.MainWindowHandle, this.Handle);
+                    //Thread.Sleep(4000); // you need to wait/check the process started, then...
 
-            // window, x, y, width, height, repaint
-            // move the ffplayer window to the top-left corner and set the size to 320x280
-            MoveWindow(ffplay.MainWindowHandle, 0, 0, 320, 280, true);
+
+                    // child, new parent
+                    // make 'this' the parent of ffmpeg (presuming you are in scope of a Form or Control)
+                    SetParent(ffplay.MainWindowHandle, this.Handle);
+
+
+                    // window, x, y, width, height, repaint
+                    // move the ffplayer window to the top-left corner and set the size to 320x280
+                    MoveWindow(ffplay.MainWindowHandle, 0, 0, 320, 280, true);
+                }
+                else
+                {
+                    MessageBox.Show("impossibile aprire la finestra video!");
+                }
+
+            }
+            catch (Win32Exception we) {
+                status.Text = "Impossibile avviare ffplay/aprire il video!";
+            }
+
         }
 
         private void takeoffButton_Click(object sender, EventArgs e)
@@ -123,10 +136,10 @@ namespace ARDroneTest
             
             if (drone.sendCmd())
             {
-                status.Text = "Decollo effettuato.";
+                status.Text = "Decollo effettuato" + " - comando inviato: " + drone.getSentCmd(); ;
             }
 
-            showVideo();
+            //showVideo();
 
 
         }
@@ -144,7 +157,7 @@ namespace ARDroneTest
 
             if (drone.sendCmd())
             {
-                status.Text = "Atterraggio.";
+                status.Text = "Atterraggio" + " - comando inviato: " + drone.getSentCmd(); ;
             }
 
         }
@@ -160,7 +173,7 @@ namespace ARDroneTest
             drone.moveForward();
 
             if (drone.sendCmd()) {
-                status.Text = "Avanti";
+                status.Text = "Avanti" + " - comando inviato: " + drone.getSentCmd(); ;
             }
         }
 
@@ -176,7 +189,7 @@ namespace ARDroneTest
 
             if (drone.sendCmd())
             {
-                status.Text = "Indietro";
+                status.Text = "Indietro" + " - comando inviato: " + drone.getSentCmd(); ;
             }
         }
 
@@ -192,7 +205,7 @@ namespace ARDroneTest
 
             if (drone.sendCmd())
             {
-                status.Text = "Sinistra";
+                status.Text = "Sinistra" + " - comando inviato: " + drone.getSentCmd(); ;
             }
         }
 
@@ -208,7 +221,7 @@ namespace ARDroneTest
 
             if (drone.sendCmd())
             {
-                status.Text = "Destra";
+                status.Text = "Destra" + " - comando inviato: " + drone.getSentCmd(); ;
             }
         }
 
@@ -224,7 +237,7 @@ namespace ARDroneTest
 
             if (drone.sendCmd())
             {
-                status.Text = "Su";
+                status.Text = "Su" + " - comando inviato: " + drone.getSentCmd(); ;
             }
 
         }
@@ -241,13 +254,13 @@ namespace ARDroneTest
 
             if (drone.sendCmd())
             {
-                status.Text = "Giù";
+                status.Text = "Giù" + " - comando inviato: " + drone.getSentCmd();
             }
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (ffplay != null) {
+            if (ffplayProcessStarted) {
                 ffplay.CloseMainWindow();
                 ffplay.Close();
             }
@@ -272,6 +285,62 @@ namespace ARDroneTest
                 status.Text = "drone NON calibrato.";
             }
         }
+
+        private void Form1_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (!drone.isConnectedToDrone())
+            {
+                status.Text = "Connettersi al drone prima.";
+                return;
+            }
+
+            /*
+             * Tasti:
+             * W,A,S,D : avanti, sx, indietro, dx
+             * Q,E: rotazione sx, dx
+             * P,L: sali,scendi
+             */
+            if (e.KeyCode == Keys.W)
+            {
+                drone.moveForward();
+            }
+            else if (e.KeyCode == Keys.S)
+            {
+                drone.moveBackward();
+            }
+            else if (e.KeyCode == Keys.A)
+            {
+                drone.moveLeft();
+            }
+            else if (e.KeyCode == Keys.D)
+            {
+                drone.moveRight();
+            }
+            else if (e.KeyCode == Keys.P)
+            {
+                drone.moveUp();
+            }
+            else if (e.KeyCode == Keys.L)
+            {
+                drone.moveDown();
+            }
+            else if (e.KeyCode == Keys.Q)
+            {
+                drone.rotateLeft();
+            }
+            else if (e.KeyCode == Keys.E)
+            {
+                drone.rotateRight();
+            }
+            else
+            {
+                drone.hover();
+            }
+
+            status.Text = "Comando inviato: " + drone.getCmd();
+            drone.sendCmd();
+
+        } //keyDown
 
 
     }
