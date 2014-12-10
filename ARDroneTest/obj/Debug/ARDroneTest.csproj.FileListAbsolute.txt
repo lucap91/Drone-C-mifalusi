@@ -1,0 +1,20 @@
+c:\users\amila\documents\visual studio 2012\Projects\ARDroneTest\ARDroneTest\bin\Debug\ARDroneTest.exe.config
+c:\users\amila\documents\visual studio 2012\Projects\ARDroneTest\ARDroneTest\obj\Debug\ARDroneTest.Properties.Resources.resources
+c:\users\amila\documents\visual studio 2012\Projects\ARDroneTest\ARDroneTest\obj\Debug\ARDroneTest.csproj.GenerateResource.Cache
+c:\users\amila\documents\visual studio 2012\Projects\ARDroneTest\ARDroneTest\bin\Debug\ARDroneTest.exe
+c:\users\amila\documents\visual studio 2012\Projects\ARDroneTest\ARDroneTest\bin\Debug\ARDroneTest.pdb
+c:\users\amila\documents\visual studio 2012\Projects\ARDroneTest\ARDroneTest\obj\Debug\ARDroneTest.exe
+c:\users\amila\documents\visual studio 2012\Projects\ARDroneTest\ARDroneTest\obj\Debug\ARDroneTest.pdb
+c:\users\amila\documents\visual studio 2012\Projects\ARDroneTest\ARDroneTest\obj\Debug\ARDroneTest.csprojResolveAssemblyReference.cache
+C:\Users\amila\documents\visual studio 2012\Projects\ARDroneTest\ARDroneTest\obj\Debug\ARDroneTest.Form1.resources
+C:\Users\Luca\Desktop\OneDrive-2014-12-03\ARDroneTest\bin\Debug\ARDroneTest.exe.config
+C:\Users\Luca\Desktop\OneDrive-2014-12-03\ARDroneTest\bin\Debug\ARDroneTest.exe
+C:\Users\Luca\Desktop\OneDrive-2014-12-03\ARDroneTest\bin\Debug\ARDroneTest.pdb
+C:\Users\Luca\Desktop\OneDrive-2014-12-03\ARDroneTest\obj\Debug\ARDroneTest.Form1.resources
+C:\Users\Luca\Desktop\OneDrive-2014-12-03\ARDroneTest\obj\Debug\ARDroneTest.Properties.Resources.resources
+C:\Users\Luca\Desktop\OneDrive-2014-12-03\ARDroneTest\obj\Debug\ARDroneTest.csproj.GenerateResource.Cache
+C:\Users\Luca\Desktop\OneDrive-2014-12-03\ARDroneTest\obj\Debug\ARDroneTest.exe
+C:\Users\Luca\Desktop\OneDrive-2014-12-03\ARDroneTest\obj\Debug\ARDroneTest.pdb
+C:\Users\Luca\Desktop\OneDrive-2014-12-03\Drone-C-\ARDroneTest\bin\Debug\ARDroneTest.exe.config
+C:\Users\Luca\Desktop\OneDrive-2014-12-03\Drone-C-\ARDroneTest\obj\Debug\ARDroneTest.exe
+C:\Users\Luca\Desktop\OneDrive-2014-12-03\Drone-C-\ARDroneTest\obj\Debug\ARDroneTest.pdb
