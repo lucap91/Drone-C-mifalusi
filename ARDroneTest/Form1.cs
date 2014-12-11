@@ -105,12 +105,12 @@ namespace ARDroneTest
 
                     // child, new parent
                     // make 'this' the parent of ffmpeg (presuming you are in scope of a Form or Control)
-                    SetParent(ffplay.MainWindowHandle, this.Handle);
+                    //SetParent(ffplay.MainWindowHandle, this.Handle);
 
 
                     // window, x, y, width, height, repaint
                     // move the ffplayer window to the top-left corner and set the size to 320x280
-                    MoveWindow(ffplay.MainWindowHandle, 0, 0, 320, 280, true);
+                    //MoveWindow(ffplay.MainWindowHandle, 0, 0, 320, 280, true);
                 }
                 else
                 {

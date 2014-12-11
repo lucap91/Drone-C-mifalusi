@@ -24,7 +24,8 @@ namespace ARDroneTest
         private String cmd; //comando da inviare al drone 
         private String sentCmd; //conserva il valore di cmd dopo la chiamata a sendCmd() che imposta cmd a stringa nulla
         private int seq = 1; //num. seq del pkt udp
-        private float speed = (float)0.1;
+        private float speed = (float)0.25; //velocita movimento avanti/indietro
+        private float lrSpeed = (float)0.5; //velocita movimento sx/dx e rotazione sx,dx
         private float MAX_SPEED = 10;
 
 
@@ -226,13 +227,13 @@ namespace ARDroneTest
         public void moveLeft()
         {
             Console.WriteLine("SINISTRA");
-            cmd = "AT*PCMD=" + (seq++) + ",1," + intOfFloat(-speed) + ",0,0,0,";
+            cmd = "AT*PCMD=" + (seq++) + ",1," + intOfFloat(-lrSpeed) + ",0,0,0,";
         }
 
         public void moveRight()
         {
             Console.WriteLine("DESTRA");
-            cmd = "AT*PCMD=" + (seq++) + ",1,"+ intOfFloat(speed)+",0,0,0,";
+            cmd = "AT*PCMD=" + (seq++) + ",1," + intOfFloat(lrSpeed) + ",0,0,0,";
         }
 
 
@@ -254,13 +255,13 @@ namespace ARDroneTest
         public void rotateLeft()
         {
             Console.WriteLine("ROTAZIONE SX'");
-            cmd = "AT*PCMD=" + (seq++) + ",1,0,0,0," + intOfFloat(-speed);
+            cmd = "AT*PCMD=" + (seq++) + ",1,0,0,0," + intOfFloat(-lrSpeed);
         }
 
         public void rotateRight()
         {
             Console.WriteLine("ROTAZIONE DX'");
-            cmd = "AT*PCMD=" + (seq++) + ",1,0,0,0," + intOfFloat(speed);
+            cmd = "AT*PCMD=" + (seq++) + ",1,0,0,0," + intOfFloat(lrSpeed);
         }
 
         

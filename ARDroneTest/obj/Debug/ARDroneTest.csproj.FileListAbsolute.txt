@@ -27,3 +27,12 @@ C:\Users\amila\Documents\GitHub\Drone-C-mifalusi\ARDroneTest\obj\Debug\ARDroneTe
 C:\Users\amila\Documents\GitHub\Drone-C-mifalusi\ARDroneTest\obj\Debug\ARDroneTest.Form1.resources
 C:\Users\amila\Documents\GitHub\Drone-C-mifalusi\ARDroneTest\obj\Debug\ARDroneTest.Properties.Resources.resources
 C:\Users\amila\Documents\GitHub\Drone-C-mifalusi\ARDroneTest\obj\Debug\ARDroneTest.csproj.GenerateResource.Cache
+C:\Users\milo\Desktop\ARDrone\Drone-C-mifalusi\ARDroneTest\bin\Debug\ARDroneTest.exe.config
+C:\Users\milo\Desktop\ARDrone\Drone-C-mifalusi\ARDroneTest\obj\Debug\ARDroneTest.exe
+C:\Users\milo\Desktop\ARDrone\Drone-C-mifalusi\ARDroneTest\obj\Debug\ARDroneTest.pdb
+C:\Users\milo\Desktop\ARDrone\Drone-C-mifalusi\ARDroneTest\bin\Debug\ARDroneTest.exe
+C:\Users\milo\Desktop\ARDrone\Drone-C-mifalusi\ARDroneTest\bin\Debug\ARDroneTest.pdb
+C:\Users\milo\Desktop\ARDrone\Drone-C-mifalusi\ARDroneTest\obj\Debug\ARDroneTest.csprojResolveAssemblyReference.cache
+C:\Users\milo\Desktop\ARDrone\Drone-C-mifalusi\ARDroneTest\obj\Debug\ARDroneTest.Form1.resources
+C:\Users\milo\Desktop\ARDrone\Drone-C-mifalusi\ARDroneTest\obj\Debug\ARDroneTest.Properties.Resources.resources
+C:\Users\milo\Desktop\ARDrone\Drone-C-mifalusi\ARDroneTest\obj\Debug\ARDroneTest.csproj.GenerateResource.Cache
