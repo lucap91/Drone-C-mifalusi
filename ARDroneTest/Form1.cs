@@ -61,7 +61,7 @@ namespace ARDroneTest
                 status.Text = "Connesso al drone!";
                  
                 
-                showVideo();
+                //showVideo();
             }
             else {
                 status.Text = "Connessione non riuscita!";
@@ -111,6 +111,8 @@ namespace ARDroneTest
                     // window, x, y, width, height, repaint
                     // move the ffplayer window to the top-left corner and set the size to 320x280
                     //MoveWindow(ffplay.MainWindowHandle, 0, 0, 320, 280, true);
+
+                    drone.sendVideoStreamWakeup();
                 }
                 else
                 {
@@ -139,7 +141,7 @@ namespace ARDroneTest
                 status.Text = "Decollo effettuato" + " - comando inviato: " + drone.getSentCmd(); ;
             }
 
-            //showVideo();
+            showVideo();
 
 
         }
@@ -260,7 +262,8 @@ namespace ARDroneTest
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (ffplayProcessStarted) {
+            //se chiudo ffplay e poi il form ho un eccezione NullPointer
+            if ( !ffplay.HasExited ) {
                 ffplay.CloseMainWindow();
                 ffplay.Close();
             }
@@ -339,7 +342,17 @@ namespace ARDroneTest
 
             status.Text = "Comando inviato: " + drone.getCmd();
             drone.sendCmd();
+            
+        }
 
+        private void rotateLeft_Click(object sender, EventArgs e)
+        {
+            drone.rotateLeft();
+        }
+
+        private void rotateRight_Click(object sender, EventArgs e)
+        {
+            drone.rotateRight();
         } //keyDown
 
 

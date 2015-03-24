@@ -17,8 +17,13 @@ namespace ARDroneTest
     {
        //config. rete parrot
         private  String ardroneIP = "192.168.1.1";
-        private  int portNum = 5556; //per i comandi AT*PCMD, AT*REF
-        private  Socket sender;
+        private  int portNum = 5556;        //per i comandi AT*PCMD, AT*REF
+        private int videoPortNum = 5555;    //per wakeup del video stream?
+        private int navDataPortNum = 5554;
+
+        private Socket sender;              //socket per i comandi di movimento
+        private Socket videoStreamWakeup;   //socket per il pacchetti di wakeup del videostream
+        private Socket navData;             //socket per ricevere nav data dal drone
 
 
         private String cmd; //comando da inviare al drone 
@@ -47,21 +52,33 @@ namespace ARDroneTest
 
         //crea una connessione col drone
         public  void connectToDrone() {
-
-            byte[] bytes = new byte[1024];
-
+            
+            if (connectedToDrone) {
+                logInfo = "Già connesso al drone";
+                return;
+            }
 
             //prova a connettersi
             try {
+                //togliere???
                 IPAddress ipAddr = IPAddress.Parse(ardroneIP);
                 IPEndPoint drone = new IPEndPoint(ipAddr, portNum);
+                IPEndPoint droneVideoWakeup = new IPEndPoint(ipAddr, videoPortNum); //TEST
+                IPEndPoint droneNavData = new IPEndPoint(ipAddr, navDataPortNum);//TEST
 
 
+                //crea socket
                 sender = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
                 sender.Connect(ipAddr, portNum);
 
-                
+                //TEST crea socket per pacchetti wakeup stream video
+                //(videoStreamWakeup = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                //videoStreamWakeup.Connect(ipAddr, videoPortNum);
 
+                //TEST crea socket per ricevere navdata
+               /* navData = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                navData.Connect(ipAddr, navDataPortNum);*/
+                
             }
             catch (ArgumentNullException ane)
             {
@@ -80,16 +97,41 @@ namespace ARDroneTest
 
             
             //imposta limite altezza
-            setMaxAltitude(2);
+            setMaxAltitude(3);
 
             if (sendCmd())
             {
                 connectedToDrone = true;
                 Console.WriteLine("connesso al drone: " + ardroneIP + ":" + portNum);
 
-                //comando per il video low-res
-                cmd = "AT*CONFIG=" + (seq++) + ",\"video:video_codec\",\"128\"";
-                sendCmd();
+                //
+                cmd = "AT*PMODE=" + (seq++) + ",2";
+                //sendCmd();
+
+
+                //cmd = "AT*MISC=" + (seq++) + ",20,2000,3000";
+                //sendCmd();
+
+
+                //assetto piatto(calibra orientamento iniziale drone)
+                //cmd = "AT*FTRIM=" + (seq++);
+                //sendCmd();
+
+
+                //inizializza video stream - wakeup pkts vanno mandati in questo ordine
+                //sendVideoStreamWakeup();
+
+                //cmd = "AT*CONFIG=" + (seq++) + ",\"general:video_enable\",\"TRUE\"";
+                //sendCmd();
+
+                //sendVideoStreamWakeup();
+
+                //cmd = "AT*CONFIG=" + (seq++) + ",\"video:bitrate_ctrl_mode\",\"0\"";
+                //sendCmd();
+
+
+                //cmd = "AT*CONFIG=" + (seq++) + ",\"video:video_codec\",\"128\"";
+                //sendCmd();
 
             }
             else
@@ -119,16 +161,16 @@ namespace ARDroneTest
             }
             catch (SocketException e)
             {
-                Console.WriteLine("Impossibile inviare il mex. al drone!");
+                Console.WriteLine("SocketException: Impossibile inviare il mex. al drone!");
                 return false;
             }
             catch (System.NullReferenceException e)
             {
-                Console.WriteLine("Impossibile inviare il mex. al drone!");
+                Console.WriteLine("NullReferenceException: Impossibile inviare il mex. al drone!");
                 return false;
             }
             catch (Exception e) {
-                Console.WriteLine("luca patti fa casini");
+                Console.WriteLine("Exception: Impossibile inviare il mex. al drone!");
                 return false;
             }
 
@@ -136,10 +178,38 @@ namespace ARDroneTest
             sentCmd = cmd; //salvo il vecchio valore di cmd
             cmd = "";
 
-
             return true;
         }
 
+
+        //TEST
+        public bool sendVideoStreamWakeup() {
+
+            byte[] buffer = { 0x01, 0x00, 0x00, 0x00 };
+
+            try {
+                videoStreamWakeup.Send(buffer);
+            }
+            catch (SocketException e)
+            {
+                Console.WriteLine("SocketException: Impossibile inviare il mex. al drone!");
+                return false;
+            }
+            catch (System.NullReferenceException e)
+            {
+                Console.WriteLine("NullReferenceException: Impossibile inviare il mex. al drone!");
+                return false;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Exception: Impossibile inviare il mex. al drone!");
+                return false;
+            }
+
+
+            return true;
+
+        }
 
 
         //setter
@@ -182,7 +252,8 @@ namespace ARDroneTest
                 Console.WriteLine("WARNING: altitudine max. settata a 1m");
             }
 
-            cmd = "AT*CONFIG=1,\"control:altitude_max\",\"" + metres + "\"";
+            //il comando prende l'altitudine in millimetri!!!
+            cmd = "AT*CONFIG=1,\"control:altitude_max\",\"" + (metres*1000) + "\"";
         }
 
 
@@ -206,6 +277,9 @@ namespace ARDroneTest
         public void takeoff() {
             Console.WriteLine("DECOLLO");
             cmd = "AT*REF=" + (seq++) + ",290718208";
+
+            //invia wakeup video stream
+            sendVideoStreamWakeup();
         }
 
         public void land() {
@@ -227,13 +301,13 @@ namespace ARDroneTest
         public void moveLeft()
         {
             Console.WriteLine("SINISTRA");
-            cmd = "AT*PCMD=" + (seq++) + ",1," + intOfFloat(-lrSpeed) + ",0,0,0,";
+            cmd = "AT*PCMD=" + (seq++) + ",1," + intOfFloat(-lrSpeed) + ",0,0,0";
         }
 
         public void moveRight()
         {
             Console.WriteLine("DESTRA");
-            cmd = "AT*PCMD=" + (seq++) + ",1," + intOfFloat(lrSpeed) + ",0,0,0,";
+            cmd = "AT*PCMD=" + (seq++) + ",1," + intOfFloat(lrSpeed) + ",0,0,0";
         }
 
 
