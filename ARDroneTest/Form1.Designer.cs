@@ -42,6 +42,10 @@
             this.buttonCalibra = new System.Windows.Forms.Button();
             this.rotateLeft = new System.Windows.Forms.Button();
             this.rotateRight = new System.Windows.Forms.Button();
+            this.playAnimation = new System.Windows.Forms.Button();
+            this.playLEDAnim = new System.Windows.Forms.Button();
+            this.animationDrop = new System.Windows.Forms.ComboBox();
+            this.ledAnimationDrop = new System.Windows.Forms.ComboBox();
             this.statusStrip.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -60,10 +64,10 @@
             // 
             this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.status});
-            this.statusStrip.Location = new System.Drawing.Point(0, 533);
+            this.statusStrip.Location = new System.Drawing.Point(0, 715);
             this.statusStrip.Name = "statusStrip";
             this.statusStrip.Padding = new System.Windows.Forms.Padding(2, 0, 21, 0);
-            this.statusStrip.Size = new System.Drawing.Size(1066, 30);
+            this.statusStrip.Size = new System.Drawing.Size(1464, 30);
             this.statusStrip.TabIndex = 1;
             // 
             // status
@@ -195,11 +199,86 @@
             this.rotateRight.UseVisualStyleBackColor = true;
             this.rotateRight.Click += new System.EventHandler(this.rotateRight_Click);
             // 
+            // playAnimation
+            // 
+            this.playAnimation.Location = new System.Drawing.Point(1234, 128);
+            this.playAnimation.Name = "playAnimation";
+            this.playAnimation.Size = new System.Drawing.Size(99, 52);
+            this.playAnimation.TabIndex = 13;
+            this.playAnimation.Text = "animazione";
+            this.playAnimation.UseVisualStyleBackColor = true;
+            this.playAnimation.Click += new System.EventHandler(this.playAnimation_Click);
+            // 
+            // playLEDAnim
+            // 
+            this.playLEDAnim.Location = new System.Drawing.Point(1234, 203);
+            this.playLEDAnim.Name = "playLEDAnim";
+            this.playLEDAnim.Size = new System.Drawing.Size(99, 59);
+            this.playLEDAnim.TabIndex = 14;
+            this.playLEDAnim.Text = "animazione LED";
+            this.playLEDAnim.UseVisualStyleBackColor = true;
+            this.playLEDAnim.Click += new System.EventHandler(this.playLEDAnim_Click);
+            // 
+            // animationDrop
+            // 
+            this.animationDrop.FormattingEnabled = true;
+            this.animationDrop.Items.AddRange(new object[] {
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+            "13",
+            "14",
+            "15",
+            "16",
+            "17",
+            "18",
+            "19"});
+            this.animationDrop.Location = new System.Drawing.Point(1096, 128);
+            this.animationDrop.Name = "animationDrop";
+            this.animationDrop.Size = new System.Drawing.Size(121, 28);
+            this.animationDrop.TabIndex = 15;
+            // 
+            // ledAnimationDrop
+            // 
+            this.ledAnimationDrop.FormattingEnabled = true;
+            this.ledAnimationDrop.Items.AddRange(new object[] {
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+            "13"});
+            this.ledAnimationDrop.Location = new System.Drawing.Point(1096, 203);
+            this.ledAnimationDrop.Name = "ledAnimationDrop";
+            this.ledAnimationDrop.Size = new System.Drawing.Size(121, 28);
+            this.ledAnimationDrop.TabIndex = 16;
+            this.ledAnimationDrop.SelectedIndexChanged += new System.EventHandler(this.comboBox2_SelectedIndexChanged);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1066, 563);
+            this.ClientSize = new System.Drawing.Size(1464, 745);
+            this.Controls.Add(this.ledAnimationDrop);
+            this.Controls.Add(this.animationDrop);
+            this.Controls.Add(this.playLEDAnim);
+            this.Controls.Add(this.playAnimation);
             this.Controls.Add(this.rotateRight);
             this.Controls.Add(this.rotateLeft);
             this.Controls.Add(this.buttonCalibra);
@@ -243,6 +322,10 @@
         private System.Windows.Forms.Button buttonCalibra;
         private System.Windows.Forms.Button rotateLeft;
         private System.Windows.Forms.Button rotateRight;
+        private System.Windows.Forms.Button playAnimation;
+        private System.Windows.Forms.Button playLEDAnim;
+        private System.Windows.Forms.ComboBox animationDrop;
+        private System.Windows.Forms.ComboBox ledAnimationDrop;
     }
 }
 

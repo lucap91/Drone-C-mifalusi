@@ -37,6 +37,9 @@ namespace ARDroneTest
         //altre info. 
         private  bool connectedToDrone; //true se connectToDrone() ha avuto successo
         private  String logInfo; //contiene l'ultima riga di log
+        
+        private Timer timer;       //timer usato per mandare mex. wakeup almeno ogni 2000ms
+        private static int timerDuration = 500; //la funzione di callback viene chiamata da timer ogni timerDuration ms
 
 
         //costruttore
@@ -72,7 +75,7 @@ namespace ARDroneTest
                 sender.Connect(ipAddr, portNum);
 
                 //TEST crea socket per pacchetti wakeup stream video
-                //(videoStreamWakeup = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                //videoStreamWakeup = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 //videoStreamWakeup.Connect(ipAddr, videoPortNum);
 
                 //TEST crea socket per ricevere navdata
@@ -94,7 +97,7 @@ namespace ARDroneTest
                 Console.WriteLine("eccezione non prevista :|", e.ToString());
                 return;
             }
-
+            
             
             //imposta limite altezza
             setMaxAltitude(3);
@@ -141,6 +144,10 @@ namespace ARDroneTest
             }
 
             
+            //avvia il timer che chiama la funzione per mandare i mex. di wakeup almeno
+            //una volta ogni 1000ms( dopo 2000ms il drone va in timeout).
+            timer = new Timer(_ => sendWakeupCallback(), null, 0, timerDuration); //every 10 seconds
+            
             
         } //connectToDrone
 
@@ -183,7 +190,7 @@ namespace ARDroneTest
 
 
         //TEST
-        public bool sendVideoStreamWakeup() {
+        /*public bool sendVideoStreamWakeup() {
 
             byte[] buffer = { 0x01, 0x00, 0x00, 0x00 };
 
@@ -209,7 +216,27 @@ namespace ARDroneTest
 
             return true;
 
+        }*/
+
+
+
+        //Invia ATCMD per hovering, questa funz. va chiamata almeno 1 volta ogni 2000ms
+        //altrimenti il drone va in timeout e interrompe tutte le comunicazioni(flusso video compreso)
+        //N.B. messaggio di wakeup = AT CMD per hovering. Funziona sia con il drone a terra che in volo.
+        private void sendWakeupCallback()
+        {
+
+            //fermo il timer per evitare che possa scattare nuovamente il callback
+            //prima di aver inviato il comando di hovering
+            //timer.Change(Timeout.Infinite, Timeout.Infinite);
+
+            hover();
+            sendCmd();
+
+            //timer.Change(0, timerDuration);  //restarts the timer
+
         }
+
 
 
         //setter
@@ -279,7 +306,7 @@ namespace ARDroneTest
             cmd = "AT*REF=" + (seq++) + ",290718208";
 
             //invia wakeup video stream
-            sendVideoStreamWakeup();
+            //sendVideoStreamWakeup();
         }
 
         public void land() {
@@ -338,6 +365,34 @@ namespace ARDroneTest
             cmd = "AT*PCMD=" + (seq++) + ",1,0,0,0," + intOfFloat(lrSpeed);
         }
 
+
+        //animazioni,m da 0 a 19
+        //parametri: num. animazione, durata  in s(se 0 usa la durata di default)
+        public void playAnimation(int animNum) {
+            if (animNum < 0 || animNum > 19) {
+                Console.WriteLine("numero animazione fuori dai limiti![0-19]");
+            }
+
+            Console.WriteLine("Animazione n. " + animNum);
+
+            cmd = "AT*CONFIG=" + (seq++) + ",\"control:flight_anim\",\"" + animNum + ",2000\"";
+            Console.WriteLine(cmd);
+        }
+
+
+        //animazioni dei led
+        //parametri: num. animazione, frequenza e durata
+        public void playLedAnimation(int animNum, float freq, int duration) {
+            if (animNum < 0 || animNum > 13) {
+                Console.WriteLine("numero animazione fuori dai limiti![0-13]");
+            }
+
+            Console.WriteLine("Animazione LED n. " + animNum + ", freq=" + freq + ", durata=" + duration);
+
+            //cmd = "AT*CONFIG=" + (seq++) + ",\"leds:leds_anim\",\"" + animNum + "," + intOfFloat(freq) + "," + duration + "\"";
+            cmd = "AT*LED=" + (seq++) + "," + animNum + "," + intOfFloat(freq) + "," + duration;
+            Console.WriteLine(cmd);
+        }
         
 
     } //class ARDrone

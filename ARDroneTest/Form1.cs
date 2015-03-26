@@ -59,9 +59,9 @@ namespace ARDroneTest
             if (drone.isConnectedToDrone() )
             {
                 status.Text = "Connesso al drone!";
-                 
-                
-                //showVideo();
+
+                //drone.sendVideoStreamWakeup();
+                showVideo();
             }
             else {
                 status.Text = "Connessione non riuscita!";
@@ -77,7 +77,7 @@ namespace ARDroneTest
                 StartInfo =
                 {
                     FileName = "ffplay",
-                    Arguments = "tcp://192.168.1.1:5555",
+                    Arguments = "-f h264 tcp://192.168.1.1:5555",
                     // hides the command window
                     CreateNoWindow = true,
                     // redirect input, output, and error streams..
@@ -100,19 +100,19 @@ namespace ARDroneTest
                 {
                     ffplayProcessStarted = true;
 
-                    //Thread.Sleep(4000); // you need to wait/check the process started, then...
+                    Thread.Sleep(3000); // you need to wait/check the process started, then...
 
 
                     // child, new parent
                     // make 'this' the parent of ffmpeg (presuming you are in scope of a Form or Control)
-                    //SetParent(ffplay.MainWindowHandle, this.Handle);
+                    SetParent(ffplay.MainWindowHandle, this.Handle);
 
 
                     // window, x, y, width, height, repaint
                     // move the ffplayer window to the top-left corner and set the size to 320x280
-                    //MoveWindow(ffplay.MainWindowHandle, 0, 0, 320, 280, true);
-
-                    drone.sendVideoStreamWakeup();
+                   MoveWindow(ffplay.MainWindowHandle, 713, 314, 320, 280, true);
+                   //System.Threading.Timer timer = new System.Threading.Timer(_ => setParentWindowsCallback(), null, 0, 2000); //every 10 seconds
+                   
                 }
                 else
                 {
@@ -124,6 +124,15 @@ namespace ARDroneTest
                 status.Text = "Impossibile avviare ffplay/aprire il video!";
             }
 
+        }
+
+        //chiama la funziona WINAPI SetParentWindows per inserire la finestra di ffplay.exe dentro al form
+        private void setParentWindowsCallback() {
+            if (ffplay != null)
+            {
+                SetParent(ffplay.MainWindowHandle, this.Handle);
+                MoveWindow(ffplay.MainWindowHandle, 0, 0, 320, 280, true);
+            }
         }
 
         private void takeoffButton_Click(object sender, EventArgs e)
@@ -140,8 +149,8 @@ namespace ARDroneTest
             {
                 status.Text = "Decollo effettuato" + " - comando inviato: " + drone.getSentCmd(); ;
             }
-
-            showVideo();
+            //drone.sendVideoStreamWakeup();
+            //showVideo();
 
 
         }
@@ -263,7 +272,7 @@ namespace ARDroneTest
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
             //se chiudo ffplay e poi il form ho un eccezione NullPointer
-            if ( !ffplay.HasExited ) {
+            if ( ffplay != null && !ffplay.HasExited ) {
                 ffplay.CloseMainWindow();
                 ffplay.Close();
             }
@@ -283,6 +292,7 @@ namespace ARDroneTest
             if(drone.sendCmd())
             {
                 status.Text = "drone calibrato.";
+
             }
             else {
                 status.Text = "drone NON calibrato.";
@@ -348,11 +358,34 @@ namespace ARDroneTest
         private void rotateLeft_Click(object sender, EventArgs e)
         {
             drone.rotateLeft();
+            drone.sendCmd();
         }
 
         private void rotateRight_Click(object sender, EventArgs e)
         {
             drone.rotateRight();
+            drone.sendCmd();
+        }
+
+        private void playAnimation_Click(object sender, EventArgs e)
+        {
+            if (animationDrop.SelectedIndex > 0 && animationDrop.SelectedIndex < 19) {
+                drone.playAnimation(animationDrop.SelectedIndex);
+            }
+
+        }
+
+        private void comboBox2_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void playLEDAnim_Click(object sender, EventArgs e)
+        {
+            if (ledAnimationDrop.SelectedIndex > 0 && ledAnimationDrop.SelectedIndex < 13)
+            {
+                drone.playLedAnimation( ledAnimationDrop.SelectedIndex, (float)0.5, 2 );
+            }
         } //keyDown
 
 
