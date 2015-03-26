@@ -36,3 +36,6 @@ C:\Users\milo\Desktop\ARDrone\Drone-C-mifalusi\ARDroneTest\obj\Debug\ARDroneTest
 C:\Users\milo\Desktop\ARDrone\Drone-C-mifalusi\ARDroneTest\obj\Debug\ARDroneTest.Form1.resources
 C:\Users\milo\Desktop\ARDrone\Drone-C-mifalusi\ARDroneTest\obj\Debug\ARDroneTest.Properties.Resources.resources
 C:\Users\milo\Desktop\ARDrone\Drone-C-mifalusi\ARDroneTest\obj\Debug\ARDroneTest.csproj.GenerateResource.Cache
+C:\Users\SimoneFurnò\Documents\GitHub\Drone-C-mifalusi\ARDroneTest\bin\Debug\ARDroneTest.exe.config
+C:\Users\SimoneFurnò\Documents\GitHub\Drone-C-mifalusi\ARDroneTest\obj\Debug\ARDroneTest.exe
+C:\Users\SimoneFurnò\Documents\GitHub\Drone-C-mifalusi\ARDroneTest\obj\Debug\ARDroneTest.pdb
