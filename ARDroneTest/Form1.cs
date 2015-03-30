@@ -360,7 +360,7 @@ namespace ARDroneTest
             drone.rotateLeft();
             drone.sendCmd();
         }
-
+        
         private void rotateRight_Click(object sender, EventArgs e)
         {
             drone.rotateRight();
@@ -370,7 +370,8 @@ namespace ARDroneTest
         private void playAnimation_Click(object sender, EventArgs e)
         {
             if (animationDrop.SelectedIndex > 0 && animationDrop.SelectedIndex < 19) {
-                drone.playAnimation(animationDrop.SelectedIndex);
+                //drone.playAnimation(animationDrop.SelectedIndex);
+                status.Text = "comando non supportato";
             }
 
         }
@@ -384,8 +385,14 @@ namespace ARDroneTest
         {
             if (ledAnimationDrop.SelectedIndex > 0 && ledAnimationDrop.SelectedIndex < 13)
             {
-                drone.playLedAnimation( ledAnimationDrop.SelectedIndex, (float)0.5, 2 );
+                //drone.playLedAnimation( ledAnimationDrop.SelectedIndex, (float)0.5, 2 );
+                status.Text = "comando non supportato";
             }
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            status.Text = drone.ReceiveData().ToString();
         } //keyDown
 
 

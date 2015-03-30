@@ -22,7 +22,7 @@ namespace ARDroneTest
         private int navDataPortNum = 5554;
 
         private Socket sender;              //socket per i comandi di movimento
-        private Socket videoStreamWakeup;   //socket per il pacchetti di wakeup del videostream
+        //private Socket videoStreamWakeup;   //socket per il pacchetti di wakeup del videostream
         private Socket navData;             //socket per ricevere nav data dal drone
 
 
@@ -38,8 +38,51 @@ namespace ARDroneTest
         private  bool connectedToDrone; //true se connectToDrone() ha avuto successo
         private  String logInfo; //contiene l'ultima riga di log
         
-        private Timer timer;       //timer usato per mandare mex. wakeup almeno ogni 2000ms
+        private Timer timer;       //timer usato per mandare mex. wakeup almeno ogni 500ms
+        private Timer navdataTimer; //timer usato per leggere navdata
         private static int timerDuration = 500; //la funzione di callback viene chiamata da timer ogni timerDuration ms
+
+
+    //usati per la lettura async. dei NAVDATA
+        private static ManualResetEvent sendDone;
+        private static ManualResetEvent navdataConnectDone;
+        byte[] rawNavdata = new byte[256];
+
+
+
+
+
+
+
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        public struct NavigationDataHeaderStruct
+        {
+            public uint Header;
+            public uint Status;
+            public uint SequenceNumber;
+            public uint Vision;
+        }
+
+        [StructLayout(LayoutKind.Sequential, Pack = 1)]
+        public struct NavigationDataStruct
+        {
+            public ushort Tag;
+            public ushort Size;
+            public uint ControlStatus;
+            public uint BatteryLevel;
+            public Single Theta;
+            public Single Phi;
+            public Single Psi;
+            public int Altitude;
+            public Single VX;
+            public Single VY;
+            public Single VZ;
+        }
+
+
+
+        private NavigationDataHeaderStruct currentNavigationDataHeaderStruct;
+        private NavigationDataStruct currentNavigationDataStruct;
 
 
         //costruttore
@@ -49,6 +92,8 @@ namespace ARDroneTest
             sentCmd = "";
             logInfo = "drone non connesso";
             connectedToDrone = false;
+
+            navdataConnectDone = new ManualResetEvent(false);
         }
 
 
@@ -65,22 +110,29 @@ namespace ARDroneTest
             try {
                 //togliere???
                 IPAddress ipAddr = IPAddress.Parse(ardroneIP);
-                IPEndPoint drone = new IPEndPoint(ipAddr, portNum);
+                IPEndPoint remoteEP = new IPEndPoint(ipAddr, navDataPortNum); //usato per la lettura asinc. dello stream NAVDATA
+                /*IPEndPoint drone = new IPEndPoint(ipAddr, portNum);
                 IPEndPoint droneVideoWakeup = new IPEndPoint(ipAddr, videoPortNum); //TEST
                 IPEndPoint droneNavData = new IPEndPoint(ipAddr, navDataPortNum);//TEST
+                */
 
 
                 //crea socket
                 sender = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
                 sender.Connect(ipAddr, portNum);
 
-                //TEST crea socket per pacchetti wakeup stream video
-                //videoStreamWakeup = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                //videoStreamWakeup.Connect(ipAddr, videoPortNum);
 
-                //TEST crea socket per ricevere navdata
-               /* navData = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                navData.Connect(ipAddr, navDataPortNum);*/
+                navData = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+                navData.Connect(ipAddr, portNum);
+                byte[] init = { 1,0,0,0};
+                navData.Send( init );
+
+                //navData.BeginConnect(remoteEP, new AsyncCallback(receiveNavdataCallback), navData);
+                //navdataConnectDone.WaitOne();
+
+                //Send(navData, "This is a test<EOF>");
+                //sendDone.WaitOne();
+
                 
             }
             catch (ArgumentNullException ane)
@@ -107,34 +159,13 @@ namespace ARDroneTest
                 connectedToDrone = true;
                 Console.WriteLine("connesso al drone: " + ardroneIP + ":" + portNum);
 
-                //
-                cmd = "AT*PMODE=" + (seq++) + ",2";
+                
+                //cmd = "AT*PMODE=" + (seq++) + ",2";
+
+
+                //cmd = "AT*CONFIG=\"general:navdata_demo\",\"TRUE\"";
                 //sendCmd();
 
-
-                //cmd = "AT*MISC=" + (seq++) + ",20,2000,3000";
-                //sendCmd();
-
-
-                //assetto piatto(calibra orientamento iniziale drone)
-                //cmd = "AT*FTRIM=" + (seq++);
-                //sendCmd();
-
-
-                //inizializza video stream - wakeup pkts vanno mandati in questo ordine
-                //sendVideoStreamWakeup();
-
-                //cmd = "AT*CONFIG=" + (seq++) + ",\"general:video_enable\",\"TRUE\"";
-                //sendCmd();
-
-                //sendVideoStreamWakeup();
-
-                //cmd = "AT*CONFIG=" + (seq++) + ",\"video:bitrate_ctrl_mode\",\"0\"";
-                //sendCmd();
-
-
-                //cmd = "AT*CONFIG=" + (seq++) + ",\"video:video_codec\",\"128\"";
-                //sendCmd();
 
             }
             else
@@ -146,10 +177,22 @@ namespace ARDroneTest
             
             //avvia il timer che chiama la funzione per mandare i mex. di wakeup almeno
             //una volta ogni 1000ms( dopo 2000ms il drone va in timeout).
-            timer = new Timer(_ => sendWakeupCallback(), null, 0, timerDuration); //every 10 seconds
+            timer = new Timer(_ => sendWakeupCallback(), null, 0, timerDuration); //every timerDuration seconds
+
+
             
             
-        } //connectToDrone
+        } //connectToDrone 
+
+
+
+        //chiude le connessioni col drone
+        public void disconnectDrone() {
+
+            sender.Disconnect(true);
+            navData.Disconnect(true);
+
+        } //disconnect from drone
 
 
 
@@ -189,35 +232,6 @@ namespace ARDroneTest
         }
 
 
-        //TEST
-        /*public bool sendVideoStreamWakeup() {
-
-            byte[] buffer = { 0x01, 0x00, 0x00, 0x00 };
-
-            try {
-                videoStreamWakeup.Send(buffer);
-            }
-            catch (SocketException e)
-            {
-                Console.WriteLine("SocketException: Impossibile inviare il mex. al drone!");
-                return false;
-            }
-            catch (System.NullReferenceException e)
-            {
-                Console.WriteLine("NullReferenceException: Impossibile inviare il mex. al drone!");
-                return false;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Exception: Impossibile inviare il mex. al drone!");
-                return false;
-            }
-
-
-            return true;
-
-        }*/
-
 
 
         //Invia ATCMD per hovering, questa funz. va chiamata almeno 1 volta ogni 2000ms
@@ -236,6 +250,41 @@ namespace ARDroneTest
             //timer.Change(0, timerDuration);  //restarts the timer
 
         }
+
+
+
+        //riempe buffer coi dati ricevuti 
+        public uint ReceiveData()
+        {
+            byte[] buffer = new byte[256];
+            int errCode = 0;
+            try
+            {
+                if (navData != null)
+                    /* NON FUNZIONA!!  */
+                    errCode = navData.Receive(buffer);
+            }
+            catch (SocketException e)
+            {
+                Console.WriteLine("ReceiveData(): eccezione!");
+            }
+
+
+            unsafe
+            {
+                fixed (byte* entry = &buffer[0])
+                {
+                    currentNavigationDataHeaderStruct = *(NavigationDataHeaderStruct*)entry;
+                }
+            }
+            //SetStatusFlags(currentNavigationDataHeaderStruct.Status);
+
+
+            Console.WriteLine( currentNavigationDataHeaderStruct.Header );
+
+            return currentNavigationDataHeaderStruct.Header;
+        }
+
 
 
 
@@ -368,17 +417,18 @@ namespace ARDroneTest
 
         //animazioni,m da 0 a 19
         //parametri: num. animazione, durata  in s(se 0 usa la durata di default)
-        public void playAnimation(int animNum) {
+       /* public void playAnimation(int animNum) {
             if (animNum < 0 || animNum > 19) {
                 Console.WriteLine("numero animazione fuori dai limiti![0-19]");
             }
 
             Console.WriteLine("Animazione n. " + animNum);
 
-            cmd = "AT*CONFIG=" + (seq++) + ",\"control:flight_anim\",\"" + animNum + ",2000\"";
+            //cmd = "AT*CONFIG=" + (seq++) + ",\"control:flight_anim\",\"" + animNum + ",2000\"";
+            cmd = "AT*CONFIG=" + (seq++) + ",\"control:flight_anim\",\"" + 3 + "," + 2 + "\"";
             Console.WriteLine(cmd);
         }
-
+        
 
         //animazioni dei led
         //parametri: num. animazione, frequenza e durata
@@ -392,7 +442,7 @@ namespace ARDroneTest
             //cmd = "AT*CONFIG=" + (seq++) + ",\"leds:leds_anim\",\"" + animNum + "," + intOfFloat(freq) + "," + duration + "\"";
             cmd = "AT*LED=" + (seq++) + "," + animNum + "," + intOfFloat(freq) + "," + duration;
             Console.WriteLine(cmd);
-        }
+        }*/
         
 
     } //class ARDrone

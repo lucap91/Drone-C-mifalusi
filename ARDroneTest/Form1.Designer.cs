@@ -43,9 +43,11 @@
             this.rotateLeft = new System.Windows.Forms.Button();
             this.rotateRight = new System.Windows.Forms.Button();
             this.playAnimation = new System.Windows.Forms.Button();
-            this.playLEDAnim = new System.Windows.Forms.Button();
             this.animationDrop = new System.Windows.Forms.ComboBox();
+            this.playLEDAnim = new System.Windows.Forms.Button();
             this.ledAnimationDrop = new System.Windows.Forms.ComboBox();
+            this.navdataBox = new System.Windows.Forms.TextBox();
+            this.button1 = new System.Windows.Forms.Button();
             this.statusStrip.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -64,10 +66,10 @@
             // 
             this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.status});
-            this.statusStrip.Location = new System.Drawing.Point(0, 715);
+            this.statusStrip.Location = new System.Drawing.Point(0, 624);
             this.statusStrip.Name = "statusStrip";
             this.statusStrip.Padding = new System.Windows.Forms.Padding(2, 0, 21, 0);
-            this.statusStrip.Size = new System.Drawing.Size(1464, 30);
+            this.statusStrip.Size = new System.Drawing.Size(1669, 30);
             this.statusStrip.TabIndex = 1;
             // 
             // status
@@ -101,7 +103,7 @@
             // moveUpButton
             // 
             this.moveUpButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 20.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.moveUpButton.Location = new System.Drawing.Point(420, 240);
+            this.moveUpButton.Location = new System.Drawing.Point(583, 230);
             this.moveUpButton.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.moveUpButton.Name = "moveUpButton";
             this.moveUpButton.Size = new System.Drawing.Size(60, 89);
@@ -113,7 +115,7 @@
             // moveDownButton
             // 
             this.moveDownButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 20.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.moveDownButton.Location = new System.Drawing.Point(420, 362);
+            this.moveDownButton.Location = new System.Drawing.Point(583, 352);
             this.moveDownButton.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.moveDownButton.Name = "moveDownButton";
             this.moveDownButton.Size = new System.Drawing.Size(60, 89);
@@ -125,7 +127,7 @@
             // buttonMoveRight
             // 
             this.buttonMoveRight.Font = new System.Drawing.Font("Microsoft Sans Serif", 20.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.buttonMoveRight.Location = new System.Drawing.Point(489, 314);
+            this.buttonMoveRight.Location = new System.Drawing.Point(652, 304);
             this.buttonMoveRight.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.buttonMoveRight.Name = "buttonMoveRight";
             this.buttonMoveRight.Size = new System.Drawing.Size(87, 62);
@@ -137,7 +139,7 @@
             // buttonMoveLeft
             // 
             this.buttonMoveLeft.Font = new System.Drawing.Font("Microsoft Sans Serif", 20.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.buttonMoveLeft.Location = new System.Drawing.Point(324, 314);
+            this.buttonMoveLeft.Location = new System.Drawing.Point(487, 304);
             this.buttonMoveLeft.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.buttonMoveLeft.Name = "buttonMoveLeft";
             this.buttonMoveLeft.Size = new System.Drawing.Size(87, 62);
@@ -148,7 +150,7 @@
             // 
             // buttonGoUp
             // 
-            this.buttonGoUp.Location = new System.Drawing.Point(324, 40);
+            this.buttonGoUp.Location = new System.Drawing.Point(487, 145);
             this.buttonGoUp.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.buttonGoUp.Name = "buttonGoUp";
             this.buttonGoUp.Size = new System.Drawing.Size(252, 52);
@@ -159,7 +161,7 @@
             // 
             // buttonGoDown
             // 
-            this.buttonGoDown.Location = new System.Drawing.Point(324, 118);
+            this.buttonGoDown.Location = new System.Drawing.Point(487, 468);
             this.buttonGoDown.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.buttonGoDown.Name = "buttonGoDown";
             this.buttonGoDown.Size = new System.Drawing.Size(252, 52);
@@ -181,9 +183,9 @@
             // 
             // rotateLeft
             // 
-            this.rotateLeft.Location = new System.Drawing.Point(713, 144);
+            this.rotateLeft.Location = new System.Drawing.Point(355, 230);
             this.rotateLeft.Name = "rotateLeft";
-            this.rotateLeft.Size = new System.Drawing.Size(96, 41);
+            this.rotateLeft.Size = new System.Drawing.Size(121, 48);
             this.rotateLeft.TabIndex = 11;
             this.rotateLeft.Text = "LR";
             this.rotateLeft.UseVisualStyleBackColor = true;
@@ -191,9 +193,9 @@
             // 
             // rotateRight
             // 
-            this.rotateRight.Location = new System.Drawing.Point(825, 144);
+            this.rotateRight.Location = new System.Drawing.Point(743, 230);
             this.rotateRight.Name = "rotateRight";
-            this.rotateRight.Size = new System.Drawing.Size(99, 40);
+            this.rotateRight.Size = new System.Drawing.Size(121, 48);
             this.rotateRight.TabIndex = 12;
             this.rotateRight.Text = "RR";
             this.rotateRight.UseVisualStyleBackColor = true;
@@ -201,23 +203,14 @@
             // 
             // playAnimation
             // 
-            this.playAnimation.Location = new System.Drawing.Point(1234, 128);
+            this.playAnimation.Location = new System.Drawing.Point(177, 489);
             this.playAnimation.Name = "playAnimation";
             this.playAnimation.Size = new System.Drawing.Size(99, 52);
             this.playAnimation.TabIndex = 13;
             this.playAnimation.Text = "animazione";
             this.playAnimation.UseVisualStyleBackColor = true;
+            this.playAnimation.Visible = false;
             this.playAnimation.Click += new System.EventHandler(this.playAnimation_Click);
-            // 
-            // playLEDAnim
-            // 
-            this.playLEDAnim.Location = new System.Drawing.Point(1234, 203);
-            this.playLEDAnim.Name = "playLEDAnim";
-            this.playLEDAnim.Size = new System.Drawing.Size(99, 59);
-            this.playLEDAnim.TabIndex = 14;
-            this.playLEDAnim.Text = "animazione LED";
-            this.playLEDAnim.UseVisualStyleBackColor = true;
-            this.playLEDAnim.Click += new System.EventHandler(this.playLEDAnim_Click);
             // 
             // animationDrop
             // 
@@ -242,10 +235,22 @@
             "17",
             "18",
             "19"});
-            this.animationDrop.Location = new System.Drawing.Point(1096, 128);
+            this.animationDrop.Location = new System.Drawing.Point(39, 489);
             this.animationDrop.Name = "animationDrop";
             this.animationDrop.Size = new System.Drawing.Size(121, 28);
             this.animationDrop.TabIndex = 15;
+            this.animationDrop.Visible = false;
+            // 
+            // playLEDAnim
+            // 
+            this.playLEDAnim.Location = new System.Drawing.Point(177, 564);
+            this.playLEDAnim.Name = "playLEDAnim";
+            this.playLEDAnim.Size = new System.Drawing.Size(99, 59);
+            this.playLEDAnim.TabIndex = 14;
+            this.playLEDAnim.Text = "animazione LED";
+            this.playLEDAnim.UseVisualStyleBackColor = true;
+            this.playLEDAnim.Visible = false;
+            this.playLEDAnim.Click += new System.EventHandler(this.playLEDAnim_Click);
             // 
             // ledAnimationDrop
             // 
@@ -264,17 +269,38 @@
             "11",
             "12",
             "13"});
-            this.ledAnimationDrop.Location = new System.Drawing.Point(1096, 203);
+            this.ledAnimationDrop.Location = new System.Drawing.Point(39, 564);
             this.ledAnimationDrop.Name = "ledAnimationDrop";
             this.ledAnimationDrop.Size = new System.Drawing.Size(121, 28);
             this.ledAnimationDrop.TabIndex = 16;
+            this.ledAnimationDrop.Visible = false;
             this.ledAnimationDrop.SelectedIndexChanged += new System.EventHandler(this.comboBox2_SelectedIndexChanged);
+            // 
+            // navdataBox
+            // 
+            this.navdataBox.Location = new System.Drawing.Point(892, 67);
+            this.navdataBox.Multiline = true;
+            this.navdataBox.Name = "navdataBox";
+            this.navdataBox.Size = new System.Drawing.Size(624, 474);
+            this.navdataBox.TabIndex = 17;
+            // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(535, 67);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(75, 23);
+            this.button1.TabIndex = 18;
+            this.button1.Text = "button1";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1464, 745);
+            this.ClientSize = new System.Drawing.Size(1669, 654);
+            this.Controls.Add(this.button1);
+            this.Controls.Add(this.navdataBox);
             this.Controls.Add(this.ledAnimationDrop);
             this.Controls.Add(this.animationDrop);
             this.Controls.Add(this.playLEDAnim);
@@ -323,9 +349,11 @@
         private System.Windows.Forms.Button rotateLeft;
         private System.Windows.Forms.Button rotateRight;
         private System.Windows.Forms.Button playAnimation;
-        private System.Windows.Forms.Button playLEDAnim;
         private System.Windows.Forms.ComboBox animationDrop;
+        private System.Windows.Forms.Button playLEDAnim;
         private System.Windows.Forms.ComboBox ledAnimationDrop;
+        private System.Windows.Forms.TextBox navdataBox;
+        private System.Windows.Forms.Button button1;
     }
 }
 
