@@ -37,6 +37,10 @@ namespace ARDroneTest
         //riceve i navdata
         private static NavData nav;
 
+        //timer usati per chiamare periodicamente funzioni callback x aggiornare dati
+        private System.Threading.Timer timer;
+        private System.Threading.Timer timer2;
+
 
 
         public Form1()
@@ -73,6 +77,22 @@ namespace ARDroneTest
                 status.Text = "Connessione non riuscita!";
             }
 
+
+
+            //manda pkt di wakeup per iniziare lo stream navdata
+            nav.initNavdata(); //mando pkt wakeup
+
+
+            //imposta un timeout prima di mandare AT command per uscire da bootstrap mode
+            //ed entrare in demo mode per ricevere i navdata completi
+            //lo chiamo in 1000ms in modo da dare al drone un pò di tempo
+            timer = new System.Threading.Timer(_ => exitBootstrapEnterDemoMode(), null, 1000, System.Threading.Timeout.Infinite );
+            
+
+            //imposta un altro timeout per iniziare l'aggiornamento periodico dei navdata
+            //chiama navdataPeriodicUpdate() dopo 500ms e poi ogni 200ms fino al termine del programma
+            timer2 = new System.Threading.Timer(_ => navdataPeriodicUpdate(), null, 2000, 200);
+            
         }
 
         private void showVideo()
@@ -282,6 +302,11 @@ namespace ARDroneTest
                 ffplay.CloseMainWindow();
                 ffplay.Close();
             }
+
+
+            //fermo tutti i thread che aggiornano i dati in backgroud(navdata)
+            timer.Dispose();
+            timer2.Dispose();
         }
 
         private void buttonCalibra_Click(object sender, EventArgs e)
@@ -413,6 +438,89 @@ namespace ARDroneTest
 
         }
 
+        //esce dalla bootstrap mode(navdata ridotti) ed entra in demo mode(=navdata al completo)
+        private void exitBootstrapEnterDemoMode()
+        {
+            drone.navdataDemoModeOn();
+            drone.sendCmd();
+        }
+
+
+
+
+        //funzione che periodicamente aggiorna legge i nav data inviati dal drone
+        //e li inserisce nelle strutture dati della classe NavData
+        private void navdataPeriodicUpdate() {
+
+            //legge navdata dal socket
+            //N.B: receiveNavdata() è blocking!!
+            if (!nav.receiveNavdata()) {
+                setNavdataBoxText("Can't receive NAVDATA!");
+                return;
+            }
+
+            //aggiorna i dati
+            nav.updateNavigationData();
+
+
+
+            //non aggiorna a schermo se non sono presenti dati nuovi inviati dal drone
+            //if (!nav.isNavdataAvailable())
+              //   return;
+
+
+            //crea la stringa di testo coi dati da visualizzare
+            String log = "Navigation Data:" + Environment.NewLine + Environment.NewLine;
+            log += "Control state: " + nav.getControlStatus() + Environment.NewLine;
+            log += "Battery: " + nav.getBatteryLevel() + Environment.NewLine;
+            log += "Pitch: " + nav.getPitch() + Environment.NewLine;
+            log += "Roll: " + nav.getRoll() + Environment.NewLine;
+            log += "Yaw(ang. speed): " + nav.getYaw() + Environment.NewLine;
+            log += "Altitude: " + nav.getAltitude() + Environment.NewLine;
+            log += "Velocity X: " + nav.getVX() + Environment.NewLine;
+            log += "Velocity Y: " + nav.getVY() + Environment.NewLine;
+            log += "Velocity Z: " + nav.getVZ() + Environment.NewLine;
+
+
+            //visualizza nella textbox la stringa prodotta
+
+            Console.WriteLine(log);
+            setNavdataBoxText(log);
+
+
+        }
+
+
+        //metodo delegato usato per riinvocare la funzione setNavDataBoxText all'interno del thread principale
+        //nel caso venisse chiamata nel thread secondario(timer).
+        private delegate void EventArgsDelegate(String txt);
+
+        private void setNavdataBoxText(String txt) {
+
+            //per via dei timeout che chiamano periodicamente questa funzionela funzione navDataPeriodicUpdate()(che chima qst funz.)
+            //in un thread differente da quello del Form, non posso modificare il valore della textbox navdataBox in maniera thread safe.
+
+            //controllo se sono nel thread che ha creato navdataBox(thread principale)
+            if (this.InvokeRequired)
+            {
+                try
+                {
+                    //sono nel thread sbagliato, chiamo quello giusto
+                    this.Invoke(new EventArgsDelegate(setNavdataBoxText), txt);
+                }
+                catch (System.ObjectDisposedException) {
+                    Console.WriteLine("Eccezzione ObjectDisposedException");
+                }
+
+            }
+            
+
+            //Ora sono in quello giusto, posso impostare il valore del testo
+            navdataBox.Text = txt;
+        }
+
+
+
         private void button2_Click(object sender, EventArgs e)
         {
             drone.navdataDemoModeOn();
@@ -421,14 +529,38 @@ namespace ARDroneTest
 
         private void button3_Click(object sender, EventArgs e)
         {
-            nav.receiveNavdata(null);
+            nav.receiveNavdata();
         }
 
+        //update data button
         private void button4_Click(object sender, EventArgs e)
         {
+            //non aggiorna se non sono presenti dati nuovi inviati dal drone
+            if (!nav.isNavdataAvailable())
+                return;
+
+
+            //legge i dati
+            NavData.NavigationDataStruct navData;
             nav.updateNavigationData();
 
-            navdataBox.Text = nav.getBatteryLevel().ToString();
+
+            String log = "Navigation Data:" + Environment.NewLine + Environment.NewLine;
+            log += "Control state: " + nav.getControlStatus() + Environment.NewLine;
+            log += "Battery: " + nav.getBatteryLevel() + Environment.NewLine;
+            log += "Pitch: " + nav.getPitch() + Environment.NewLine;
+            log += "Roll: " + nav.getRoll() + Environment.NewLine;
+            log += "Yaw(ang. speed): " + nav.getYaw() + Environment.NewLine;
+            log += "Altitude: " + nav.getAltitude() + Environment.NewLine;
+            log += "Velocity X: " + nav.getVX() + Environment.NewLine;
+            log += "Velocity Y: " + nav.getVY()  +Environment.NewLine;
+            log += "Velocity Z: " + nav.getVZ()  + Environment.NewLine;
+
+
+            //visualizza a schermo
+            navdataBox.Text = log;
+
+
         }
 
 

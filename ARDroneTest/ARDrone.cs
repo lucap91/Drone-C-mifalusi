@@ -74,31 +74,12 @@ namespace ARDroneTest
 
             //prova a connettersi
             try {
-                //togliere???
-                IPAddress ipAddr = IPAddress.Parse(ardroneIP);
-                //IPEndPoint remoteEP = new IPEndPoint(ipAddr, navDataPortNum); //usato per la lettura asinc. dello stream NAVDATA
-                /*IPEndPoint drone = new IPEndPoint(ipAddr, portNum);
-                IPEndPoint droneVideoWakeup = new IPEndPoint(ipAddr, videoPortNum); //TEST
-                IPEndPoint droneNavData = new IPEndPoint(ipAddr, navDataPortNum);//TEST
-                */
 
+                IPAddress ipAddr = IPAddress.Parse(ardroneIP);
 
                 //crea socket
                 sender = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
                 sender.Connect(ipAddr, portNum);
-
-
-                /*navData = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-                navData.Connect(ipAddr, portNum);
-                byte[] init = { 1,0,0,0};
-                navData.Send( init );*/
-
-                //navData.BeginConnect(remoteEP, new AsyncCallback(receiveNavdataCallback), navData);
-                //navdataConnectDone.WaitOne();
-
-                //Send(navData, "This is a test<EOF>");
-                //sendDone.WaitOne();
-
                 
             }
             catch (ArgumentNullException ane)
@@ -123,30 +104,18 @@ namespace ARDroneTest
             if (sendCmd())
             {
                 connectedToDrone = true;
-                Console.WriteLine("connesso al drone: " + ardroneIP + ":" + portNum);
-
-                
-                //cmd = "AT*PMODE=" + (seq++) + ",2";
-
-
-                //cmd = "AT*CONFIG=\"general:navdata_demo\",\"TRUE\"";
-                //sendCmd();
-
-
+                Console.WriteLine("Connesso al drone: " + ardroneIP + ":" + portNum);
             }
             else
             {
                 connectedToDrone = false;
-                Console.WriteLine("non connesso al drone: " + ardroneIP + ":" + portNum);
+                Console.WriteLine("Non connesso al drone: " + ardroneIP + ":" + portNum);
             }
 
             
-            //avvia il timer che chiama la funzione per mandare i mex. di wakeup almeno
-            //una volta ogni 1000ms( dopo 2000ms il drone va in timeout).
+            //avvia il timer che chiama la funzione per mandare i mex. di wakeup(hover) almeno
+            //una volta ogni 500ms( dopo 2000ms il drone va in timeout).
             timer = new Timer(_ => sendWakeupCallback(), null, 0, timerDuration); //every timerDuration seconds
-
-
-            
             
         } //connectToDrone 
 
@@ -205,51 +174,10 @@ namespace ARDroneTest
         //N.B. messaggio di wakeup = AT CMD per hovering. Funziona sia con il drone a terra che in volo.
         private void sendWakeupCallback()
         {
-
-            //fermo il timer per evitare che possa scattare nuovamente il callback
-            //prima di aver inviato il comando di hovering
-            //timer.Change(Timeout.Infinite, Timeout.Infinite);
-
+            //uso AT cmd di hovering per evitare che il drone vada in timeout
             hover();
             sendCmd();
-
-            //timer.Change(0, timerDuration);  //restarts the timer
-
         }
-
-
-
-        //riempe buffer coi dati ricevuti 
-        /*public uint ReceiveData()
-        {
-            byte[] buffer = new byte[256];
-            int errCode = 0;
-            try
-            {
-                if (navData != null)
-                    /* NON FUNZIONA!!  
-                    errCode = navData.Receive(buffer);
-            }
-            catch (SocketException e)
-            {
-                Console.WriteLine("ReceiveData(): eccezione!");
-            }
-
-
-            unsafe
-            {
-                fixed (byte* entry = &buffer[0])
-                {
-                    currentNavigationDataHeaderStruct = *(NavigationDataHeaderStruct*)entry;
-                }
-            }
-
-
-            Console.WriteLine( currentNavigationDataHeaderStruct.Header );
-
-            return currentNavigationDataHeaderStruct.Header;
-        }*/
-
 
 
 

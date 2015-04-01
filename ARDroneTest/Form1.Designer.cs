@@ -48,7 +48,7 @@
             this.ledAnimationDrop = new System.Windows.Forms.ComboBox();
             this.navdataBox = new System.Windows.Forms.TextBox();
             this.button1 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
+            this.startDemoMode = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
             this.button4 = new System.Windows.Forms.Button();
             this.statusStrip.SuspendLayout();
@@ -69,10 +69,10 @@
             // 
             this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.status});
-            this.statusStrip.Location = new System.Drawing.Point(0, 624);
+            this.statusStrip.Location = new System.Drawing.Point(0, 708);
             this.statusStrip.Name = "statusStrip";
             this.statusStrip.Padding = new System.Windows.Forms.Padding(2, 0, 21, 0);
-            this.statusStrip.Size = new System.Drawing.Size(1669, 30);
+            this.statusStrip.Size = new System.Drawing.Size(1617, 30);
             this.statusStrip.TabIndex = 1;
             // 
             // status
@@ -281,10 +281,11 @@
             // 
             // navdataBox
             // 
+            this.navdataBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.navdataBox.Location = new System.Drawing.Point(892, 67);
             this.navdataBox.Multiline = true;
             this.navdataBox.Name = "navdataBox";
-            this.navdataBox.Size = new System.Drawing.Size(675, 474);
+            this.navdataBox.Size = new System.Drawing.Size(353, 576);
             this.navdataBox.TabIndex = 17;
             // 
             // button1
@@ -297,15 +298,15 @@
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
-            // button2
+            // startDemoMode
             // 
-            this.button2.Location = new System.Drawing.Point(437, 63);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(75, 35);
-            this.button2.TabIndex = 19;
-            this.button2.Text = "demo mode";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
+            this.startDemoMode.Location = new System.Drawing.Point(437, 63);
+            this.startDemoMode.Name = "startDemoMode";
+            this.startDemoMode.Size = new System.Drawing.Size(75, 35);
+            this.startDemoMode.TabIndex = 19;
+            this.startDemoMode.Text = "demo mode";
+            this.startDemoMode.UseVisualStyleBackColor = true;
+            this.startDemoMode.Click += new System.EventHandler(this.button2_Click);
             // 
             // button3
             // 
@@ -332,10 +333,10 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1669, 654);
+            this.ClientSize = new System.Drawing.Size(1617, 738);
             this.Controls.Add(this.button4);
             this.Controls.Add(this.button3);
-            this.Controls.Add(this.button2);
+            this.Controls.Add(this.startDemoMode);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.navdataBox);
             this.Controls.Add(this.ledAnimationDrop);
@@ -391,7 +392,7 @@
         private System.Windows.Forms.ComboBox ledAnimationDrop;
         private System.Windows.Forms.TextBox navdataBox;
         private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Button startDemoMode;
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.Button button4;
     }
