@@ -19,11 +19,10 @@ namespace ARDroneTest
         private  String ardroneIP = "192.168.1.1";
         private  int portNum = 5556;        //per i comandi AT*PCMD, AT*REF
         private int videoPortNum = 5555;    //per wakeup del video stream?
-        private int navDataPortNum = 5554;
 
         private Socket sender;              //socket per i comandi di movimento
         //private Socket videoStreamWakeup;   //socket per il pacchetti di wakeup del videostream
-        private Socket navData;             //socket per ricevere nav data dal drone
+        
 
 
         private String cmd; //comando da inviare al drone 
@@ -44,45 +43,14 @@ namespace ARDroneTest
 
 
     //usati per la lettura async. dei NAVDATA
+        /*private int navDataPortNum = 5554;
+        private Socket navData;             //socket per ricevere nav data dal drone
         private static ManualResetEvent sendDone;
         private static ManualResetEvent navdataConnectDone;
-        byte[] rawNavdata = new byte[256];
+        byte[] rawNavdata = new byte[256];*/
 
 
 
-
-
-
-
-        [StructLayout(LayoutKind.Sequential, Pack = 1)]
-        public struct NavigationDataHeaderStruct
-        {
-            public uint Header;
-            public uint Status;
-            public uint SequenceNumber;
-            public uint Vision;
-        }
-
-        [StructLayout(LayoutKind.Sequential, Pack = 1)]
-        public struct NavigationDataStruct
-        {
-            public ushort Tag;
-            public ushort Size;
-            public uint ControlStatus;
-            public uint BatteryLevel;
-            public Single Theta;
-            public Single Phi;
-            public Single Psi;
-            public int Altitude;
-            public Single VX;
-            public Single VY;
-            public Single VZ;
-        }
-
-
-
-        private NavigationDataHeaderStruct currentNavigationDataHeaderStruct;
-        private NavigationDataStruct currentNavigationDataStruct;
 
 
         //costruttore
@@ -92,8 +60,6 @@ namespace ARDroneTest
             sentCmd = "";
             logInfo = "drone non connesso";
             connectedToDrone = false;
-
-            navdataConnectDone = new ManualResetEvent(false);
         }
 
 
@@ -110,7 +76,7 @@ namespace ARDroneTest
             try {
                 //togliere???
                 IPAddress ipAddr = IPAddress.Parse(ardroneIP);
-                IPEndPoint remoteEP = new IPEndPoint(ipAddr, navDataPortNum); //usato per la lettura asinc. dello stream NAVDATA
+                //IPEndPoint remoteEP = new IPEndPoint(ipAddr, navDataPortNum); //usato per la lettura asinc. dello stream NAVDATA
                 /*IPEndPoint drone = new IPEndPoint(ipAddr, portNum);
                 IPEndPoint droneVideoWakeup = new IPEndPoint(ipAddr, videoPortNum); //TEST
                 IPEndPoint droneNavData = new IPEndPoint(ipAddr, navDataPortNum);//TEST
@@ -122,10 +88,10 @@ namespace ARDroneTest
                 sender.Connect(ipAddr, portNum);
 
 
-                navData = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+                /*navData = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
                 navData.Connect(ipAddr, portNum);
                 byte[] init = { 1,0,0,0};
-                navData.Send( init );
+                navData.Send( init );*/
 
                 //navData.BeginConnect(remoteEP, new AsyncCallback(receiveNavdataCallback), navData);
                 //navdataConnectDone.WaitOne();
@@ -190,7 +156,7 @@ namespace ARDroneTest
         public void disconnectDrone() {
 
             sender.Disconnect(true);
-            navData.Disconnect(true);
+            //navData.Disconnect(true);
 
         } //disconnect from drone
 
@@ -198,7 +164,7 @@ namespace ARDroneTest
 
         public bool sendCmd() {
 
-            Console.WriteLine("AT command: " + cmd);
+            //Console.WriteLine("AT command: " + cmd);
 
             //###### encoding: ASCII o UTF8???
             byte[] buffer = Encoding.ASCII.GetBytes((cmd + "\r"));
@@ -254,14 +220,14 @@ namespace ARDroneTest
 
 
         //riempe buffer coi dati ricevuti 
-        public uint ReceiveData()
+        /*public uint ReceiveData()
         {
             byte[] buffer = new byte[256];
             int errCode = 0;
             try
             {
                 if (navData != null)
-                    /* NON FUNZIONA!!  */
+                    /* NON FUNZIONA!!  
                     errCode = navData.Receive(buffer);
             }
             catch (SocketException e)
@@ -277,13 +243,12 @@ namespace ARDroneTest
                     currentNavigationDataHeaderStruct = *(NavigationDataHeaderStruct*)entry;
                 }
             }
-            //SetStatusFlags(currentNavigationDataHeaderStruct.Status);
 
 
             Console.WriteLine( currentNavigationDataHeaderStruct.Header );
 
             return currentNavigationDataHeaderStruct.Header;
-        }
+        }*/
 
 
 
@@ -345,7 +310,7 @@ namespace ARDroneTest
 
         //hovering
         public void hover() {
-            Console.WriteLine("HOVERING");
+            //Console.WriteLine("HOVERING");
             cmd = "AT*PCMD=" + (seq++) + ",1,0,0,0,0"; 
         }
 
@@ -412,6 +377,12 @@ namespace ARDroneTest
         {
             Console.WriteLine("ROTAZIONE DX'");
             cmd = "AT*PCMD=" + (seq++) + ",1,0,0,0," + intOfFloat(lrSpeed);
+        }
+
+        public void navdataDemoModeOn() {
+            Console.WriteLine("esco dalla bootstrap");
+            cmd = "AT*CONFIG=" + (seq++) + ",\"general:navdata_demo\",\"TRUE\"";
+            Console.WriteLine(cmd);
         }
 
 

@@ -34,6 +34,9 @@ namespace ARDroneTest
         //oggetto drone
         private static ARDrone drone;
 
+        //riceve i navdata
+        private static NavData nav;
+
 
 
         public Form1()
@@ -48,6 +51,9 @@ namespace ARDroneTest
             drone = new ARDrone();
 
             statusStrip.Text = "Drone non connesso.";
+
+            //iniz. oggetto navdata
+            nav = new NavData();
         }
 
         private void connettiButton_Click(object sender, EventArgs e)
@@ -392,8 +398,39 @@ namespace ARDroneTest
 
         private void button1_Click(object sender, EventArgs e)
         {
-            status.Text = drone.ReceiveData().ToString();
+
+            nav.initNavdata(); //mando pkt wakeup
+
+
+
         } //keyDown
+
+
+
+        private void receiveNavdata() {
+
+            //nav.receiveNavdata();
+
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            drone.navdataDemoModeOn();
+            drone.sendCmd();
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            nav.receiveNavdata(null);
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            nav.updateNavigationData();
+
+            navdataBox.Text = nav.getBatteryLevel().ToString();
+        }
+
 
 
     }
