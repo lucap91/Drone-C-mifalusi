@@ -90,8 +90,8 @@ namespace ARDroneTest
             
 
             //imposta un altro timeout per iniziare l'aggiornamento periodico dei navdata
-            //chiama navdataPeriodicUpdate() dopo 500ms e poi ogni 200ms fino al termine del programma
-            timer2 = new System.Threading.Timer(_ => navdataPeriodicUpdate(), null, 2000, 200);
+            //chiama navdataPeriodicUpdate() dopo 500ms e poi ogni 5ms fino al termine del programma
+            timer2 = new System.Threading.Timer(_ => navdataPeriodicUpdate(), null, 2000, 5);
             
         }
 
@@ -305,8 +305,8 @@ namespace ARDroneTest
 
 
             //fermo tutti i thread che aggiornano i dati in backgroud(navdata)
-            timer.Dispose();
-            timer2.Dispose();
+            //timer.Dispose();
+            //timer2.Dispose();
         }
 
         private void buttonCalibra_Click(object sender, EventArgs e)
@@ -400,10 +400,9 @@ namespace ARDroneTest
 
         private void playAnimation_Click(object sender, EventArgs e)
         {
-            if (animationDrop.SelectedIndex > 0 && animationDrop.SelectedIndex < 19) {
-                //drone.playAnimation(animationDrop.SelectedIndex);
-                status.Text = "comando non supportato";
-            }
+            //Console.WriteLine("Selected Index: " + animationDrop.SelectedIndex);
+
+            drone.playAnimation(animationDrop.SelectedIndex );
 
         }
 
@@ -414,11 +413,10 @@ namespace ARDroneTest
 
         private void playLEDAnim_Click(object sender, EventArgs e)
         {
-            if (ledAnimationDrop.SelectedIndex > 0 && ledAnimationDrop.SelectedIndex < 13)
-            {
-                //drone.playLedAnimation( ledAnimationDrop.SelectedIndex, (float)0.5, 2 );
-                status.Text = "comando non supportato";
-            }
+
+            //Console.WriteLine("Selected Index: " + ledAnimationDrop.SelectedIndex);
+
+            drone.playLedAnimation(ledAnimationDrop.SelectedIndex );
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -455,7 +453,10 @@ namespace ARDroneTest
             //legge navdata dal socket
             //N.B: receiveNavdata() è blocking!!
             if (!nav.receiveNavdata()) {
-                setNavdataBoxText("Can't receive NAVDATA!");
+                //non aggiorno niente e riprovo tra un po
+                //setNavdataBoxText("Can't receive NAVDATA!");
+
+
                 return;
             }
 
@@ -483,12 +484,11 @@ namespace ARDroneTest
 
 
             //visualizza nella textbox la stringa prodotta
-
-            Console.WriteLine(log);
             setNavdataBoxText(log);
 
 
         }
+
 
 
         //metodo delegato usato per riinvocare la funzione setNavDataBoxText all'interno del thread principale
@@ -501,22 +501,26 @@ namespace ARDroneTest
             //in un thread differente da quello del Form, non posso modificare il valore della textbox navdataBox in maniera thread safe.
 
             //controllo se sono nel thread che ha creato navdataBox(thread principale)
-            if (this.InvokeRequired)
+            //se non ctrl. che navdataBox esista alla chiusura del form lancia un eccezione.
+            if (this.InvokeRequired && !navdataBox.IsDisposed && !this.IsDisposed )
             {
                 try
                 {
                     //sono nel thread sbagliato, chiamo quello giusto
                     this.Invoke(new EventArgsDelegate(setNavdataBoxText), txt);
                 }
-                catch (System.ObjectDisposedException) {
-                    Console.WriteLine("Eccezzione ObjectDisposedException");
+                catch (System.ObjectDisposedException oe)
+                {
+                    Console.WriteLine("Eccezione ObjectDisposedException: " + oe.ToString());
                 }
 
             }
-            
+            else
+            {
 
-            //Ora sono in quello giusto, posso impostare il valore del testo
-            navdataBox.Text = txt;
+                //Ora sono in quello giusto, posso impostare il valore del testo
+                navdataBox.Text = txt;
+            }
         }
 
 

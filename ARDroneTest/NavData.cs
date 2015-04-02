@@ -129,7 +129,7 @@ namespace ARDroneTest
             byte[] wkpbuf = {1,0,0,0};
 
             wakeup = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-            wakeup.Bind(drone);
+            //wakeup.Bind(drone);
             
             wakeup.Connect(ipAddr, navdataPort);
             try {
@@ -168,7 +168,7 @@ namespace ARDroneTest
             }
 
 
-            string stringData = BitConverter.ToString(data);
+            //string stringData = BitConverter.ToString(data);
             //Console.WriteLine("received: {0}: ",  stringData);
 
             dataReceived = true;
@@ -263,21 +263,22 @@ namespace ARDroneTest
         //se non riesce ritorna null.
         private Single getSingleFromBytes(byte[] buf, int startPos)
         {
+            //drone codifica i float come interi, leggo prima come intero i 4 bytes
+            int i = getInt32FromBytes(buf, startPos);
+
 
             byte[] floatBuf = { 0, 0, 0, 0 }; //creo un buf. temp. di 4 byte
+            floatBuf = BitConverter.GetBytes(i);
 
-            floatBuf[0] = buf[startPos];
+            /*floatBuf[0] = buf[startPos];
             floatBuf[1] = buf[startPos+1];
             floatBuf[2] = buf[startPos+2];
-            floatBuf[3] = buf[startPos+3];
+            floatBuf[3] = buf[startPos+3];*/
 
-            //l'array è little endian quindi inverto l'ordine dei byte
-            //if (BitConverter.IsLittleEndian)
-            //    Array.Reverse(floatBuf);
+            //Console.WriteLine("converting to float: [{0},{1},{2},{3}]", floatBuf[0], floatBuf[1], floatBuf[2], floatBuf[3]);
 
-            //converto i 4 byte in un uint
-            return BitConverter.ToSingle(floatBuf, 0);
-            
+            Single f = BitConverter.ToSingle(floatBuf, 0);
+            return f;
 
             //faccio operazione inversa di Ardrone.intOfFloat()
 
@@ -318,10 +319,27 @@ namespace ARDroneTest
             navDataHeaderStruct.Vision = getUint32FromBytes(data, 12);
             
 
+            //controllo integrità header
+            if (navDataHeaderStruct.Header != 0x55667788) {
+                Console.WriteLine("Header NAVDATA errato! Ho ricevuto: " + navDataHeaderStruct.Header);
+            }
+
+
             /*Console.WriteLine("header value=" + navDataHeaderStruct.Header);
             Console.WriteLine("status value=" + navDataHeaderStruct.Status);
             Console.WriteLine("seq. num. value =" + navDataHeaderStruct.SequenceNumber);
             Console.WriteLine("vision value=" + navDataHeaderStruct.Vision);*/
+
+
+
+            /*
+             * N.B: qui sto supponendo le seguenti cose:
+             *  -c'è sempre option1 al primo posto
+             *  -non mi interesso delle altre opzioni
+             *  
+             * Per il parsing completo serve un while che salta itera tra le opzioni
+             * salvando ognuno in una struttura option e funzioni di parsing per ognuna di esse.
+             */
 
 
             /*
@@ -343,13 +361,16 @@ namespace ARDroneTest
 
             navDataStruct.ControlStatus = getUint32FromBytes(data, 20);
             navDataStruct.BatteryLevel = getUint32FromBytes(data, 24);
-            navDataStruct.Theta = getSingleFromBytes(data, 28); //pitch
-            navDataStruct.Phi = getSingleFromBytes(data, 32); //roll
-            navDataStruct.Psi = getSingleFromBytes(data, 36); //yaw(ang. speed)
+
+            navDataStruct.Theta = getSingleFromBytes(data, 28)/(Single)1000.0; //pitch
+            navDataStruct.Phi = getSingleFromBytes(data, 32)/(Single)1000.0; //roll
+            navDataStruct.Psi = getSingleFromBytes(data, 36)/(Single)1000.0; //yaw(ang. speed)
+
             navDataStruct.Altitude = getInt32FromBytes(data, 40);
-            navDataStruct.VX = getSingleFromBytes(data, 20);
-            navDataStruct.VY = getSingleFromBytes(data, 20);
-            navDataStruct.VZ = getSingleFromBytes(data, 20);
+
+            navDataStruct.VX = getSingleFromBytes(data, 44);
+            navDataStruct.VY = getSingleFromBytes(data, 48);
+            navDataStruct.VZ = getSingleFromBytes(data, 52);    //non disponibile in demo_mode
 
             Console.WriteLine();
             //Console.WriteLine("battery level=" + navDataStruct.BatteryLevel);

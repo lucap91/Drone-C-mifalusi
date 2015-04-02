@@ -314,34 +314,90 @@ namespace ARDroneTest
         }
 
 
+
+        /* NON FUNZIONA!!! */
         //animazioni,m da 0 a 19
         //parametri: num. animazione, durata  in s(se 0 usa la durata di default)
-       /* public void playAnimation(int animNum) {
-            if (animNum < 0 || animNum > 19) {
+        public void playAnimation(int animNum) {
+
+            if (animNum < 0 || animNum > 19)
+            {
                 Console.WriteLine("numero animazione fuori dai limiti![0-19]");
             }
+
+            /*
+             * num  durata     animazione
+                0:  1000,  // ARDRONE_ANIM_PHI_M30_DEG
+                1:  1000,  // ARDRONE_ANIM_PHI_30_DEG
+                2:  1000,  // ARDRONE_ANIM_THETA_M30_DEG
+                3:  1000,  // ARDRONE_ANIM_THETA_30_DEG
+                4:  1000,  // ARDRONE_ANIM_THETA_20DEG_YAW_200DEG
+                5:  1000,  // ARDRONE_ANIM_THETA_20DEG_YAW_M200DEG
+                6:  5000,  // ARDRONE_ANIM_TURNAROUND
+                7:  5000,  // ARDRONE_ANIM_TURNAROUND_GODOWN
+                8:  2000,  // ARDRONE_ANIM_YAW_SHAKE
+                9:  5000,  // ARDRONE_ANIM_YAW_DANCE
+                10: 5000,  // ARDRONE_ANIM_PHI_DANCE
+                11: 5000,  // ARDRONE_ANIM_THETA_DANCE
+                12: 5000,  // ARDRONE_ANIM_VZ_DANCE
+                13: 5000,  // ARDRONE_ANIM_WAVE
+                14: 5000,  // ARDRONE_ANIM_PHI_THETA_MIXED
+                15: 5000,  // ARDRONE_ANIM_DOUBLE_PHI_THETA_MIXED
+             * 
+             *  16,17,18,19: 15 //FLIP forward, backward, left, right
+             */
+            
+            int[] MAYDAY_TIMEOUT = {
+                1000,
+                1000,
+                1000,
+                1000,
+                1000,
+                1000,
+                5000,
+                5000,
+                2000,
+                5000,
+                5000,
+                5000,
+                5000,
+                5000,
+                5000,
+                5000
+            };
+
+
+
+            int duration = MAYDAY_TIMEOUT[animNum];
 
             Console.WriteLine("Animazione n. " + animNum);
 
             //cmd = "AT*CONFIG=" + (seq++) + ",\"control:flight_anim\",\"" + animNum + ",2000\"";
-            cmd = "AT*CONFIG=" + (seq++) + ",\"control:flight_anim\",\"" + 3 + "," + 2 + "\"";
+            cmd = "AT*CONFIG=" + (seq++) + ",\"control:flight_anim\",\"" + animNum + "," + duration + "\"";
             Console.WriteLine(cmd);
         }
         
 
+        /* NON FUNZIUONA */
         //animazioni dei led
         //parametri: num. animazione, frequenza e durata
-        public void playLedAnimation(int animNum, float freq, int duration) {
+        public void playLedAnimation(int animNum) {
             if (animNum < 0 || animNum > 13) {
                 Console.WriteLine("numero animazione fuori dai limiti![0-13]");
             }
 
+
+            float freq = (float)3;
+            float duration = 2;
+
             Console.WriteLine("Animazione LED n. " + animNum + ", freq=" + freq + ", durata=" + duration);
 
             //cmd = "AT*CONFIG=" + (seq++) + ",\"leds:leds_anim\",\"" + animNum + "," + intOfFloat(freq) + "," + duration + "\"";
-            cmd = "AT*LED=" + (seq++) + "," + animNum + "," + intOfFloat(freq) + "," + duration;
+            //cmd = "AT*CONFIG=" + (seq++) + ",\"leds:leds_anim\",\"" + animNum + "," + intOfFloat(freq) + "," + duration + "\"";
+            
+                cmd = "AT*CONFIG=" + (seq++) + ",\"leds:leds_anim\",\"1,1073741824,2\"";
             Console.WriteLine(cmd);
-        }*/
+        }
         
 
     } //class ARDrone
