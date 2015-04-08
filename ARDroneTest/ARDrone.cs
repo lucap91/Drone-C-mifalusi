@@ -19,36 +19,23 @@ namespace ARDroneTest
         private  String ardroneIP = "192.168.1.1";
         private  int portNum = 5556;        //per i comandi AT*PCMD, AT*REF
         private int videoPortNum = 5555;    //per wakeup del video stream?
-
-        private Socket sender;              //socket per i comandi di movimento
-        //private Socket videoStreamWakeup;   //socket per il pacchetti di wakeup del videostream
-        
+        private Socket sender;              //socket per i comandi di movimento        
 
 
         private String cmd; //comando da inviare al drone 
         private String sentCmd; //conserva il valore di cmd dopo la chiamata a sendCmd() che imposta cmd a stringa nulla
         private int seq = 1; //num. seq del pkt udp
         private float speed = (float)0.25; //velocita movimento avanti/indietro
-        private float lrSpeed = (float)0.5; //velocita movimento sx/dx e rotazione sx,dx
+        private float lrSpeed = (float)0.5; //velocita movimento sx/dx e rotazione sx,dx(è sempre il doppio di speed)
         private float MAX_SPEED = 10;
 
 
         //altre info. 
         private  bool connectedToDrone; //true se connectToDrone() ha avuto successo
-        private  String logInfo; //contiene l'ultima riga di log
         
         private Timer timer;       //timer usato per mandare mex. wakeup almeno ogni 500ms
         private Timer navdataTimer; //timer usato per leggere navdata
         private static int timerDuration = 500; //la funzione di callback viene chiamata da timer ogni timerDuration ms
-
-
-    //usati per la lettura async. dei NAVDATA
-        /*private int navDataPortNum = 5554;
-        private Socket navData;             //socket per ricevere nav data dal drone
-        private static ManualResetEvent sendDone;
-        private static ManualResetEvent navdataConnectDone;
-        byte[] rawNavdata = new byte[256];*/
-
 
 
 
@@ -58,7 +45,6 @@ namespace ARDroneTest
             sender = null;
             cmd = "";
             sentCmd = "";
-            logInfo = "drone non connesso";
             connectedToDrone = false;
         }
 
@@ -68,7 +54,6 @@ namespace ARDroneTest
         public  void connectToDrone() {
             
             if (connectedToDrone) {
-                logInfo = "Già connesso al drone";
                 return;
             }
 
@@ -98,9 +83,7 @@ namespace ARDroneTest
             }
             
             
-            //imposta limite altezza
-            setMaxAltitude(3);
-
+            //prova ad inviare un comando
             if (sendCmd())
             {
                 connectedToDrone = true;
@@ -135,7 +118,7 @@ namespace ARDroneTest
 
             //Console.WriteLine("AT command: " + cmd);
 
-            //###### encoding: ASCII o UTF8???
+            // encoding: ASCII, aggiunge qui a ogni comando il carriage return <CR>
             byte[] buffer = Encoding.ASCII.GetBytes((cmd + "\r"));
 
             try
@@ -188,14 +171,25 @@ namespace ARDroneTest
             }
         }
 
+        public void setRotationSpeed(float rs) {
+            if (rs > 0 && rs < MAX_SPEED) {
+                lrSpeed = rs;
+            }
+        }
 
-        //getter
-        public String getLogInfo() { return logInfo; }
+
+
+        //ritorna true se connesso al drone
         public bool isConnectedToDrone() { return connectedToDrone; }
+
+        //ritorna l'ultimo comando impostato(cmd diventa stringa vuota in sendCmd())
         public String getCmd() { return cmd; }
+
+        //ritorna l'ultimo comando inviato
         public String getSentCmd() { return sentCmd; }
 
         
+
         /* Conversione float -> int
          * The number 􀀀0:8 is stored in memory as a 32-bit word whose value is BF4CCCCD(16), 
          * according to the IEEE-754 format. This 32-bit word can be considered as holding 
@@ -213,8 +207,9 @@ namespace ARDroneTest
         }
 
 
+
         //funzioni per settare cmd, chiamare sendCmd dopo
-        public void setMaxAltitude(int metres ) {
+        public void setMaxAltitude( int metres ) {
             if (metres <= 0)
             {
                 metres = 1;
@@ -232,8 +227,6 @@ namespace ARDroneTest
             Console.WriteLine("CALIBRAZIONE");
             cmd = "AT*FTRIM=" + (seq++);
         }
-
-
 
 
         //hovering
@@ -284,13 +277,13 @@ namespace ARDroneTest
         public void moveUp()
         {
             Console.WriteLine("SU");
-            cmd = "AT*PCMD=" + (seq++) + ",1,0,0," + intOfFloat(speed) + ",0";
+            cmd = "AT*PCMD=" + (seq++) + ",1,0,0," + intOfFloat(lrSpeed) + ",0";
         }
         
         public void moveDown()
         {
             Console.WriteLine("GIU'");
-            cmd = "AT*PCMD=" + (seq++) + ",1,0,0," + intOfFloat(-speed) + ",0";
+            cmd = "AT*PCMD=" + (seq++) + ",1,0,0," + intOfFloat(-lrSpeed) + ",0";
         }
 
 
@@ -307,6 +300,9 @@ namespace ARDroneTest
             cmd = "AT*PCMD=" + (seq++) + ",1,0,0,0," + intOfFloat(lrSpeed);
         }
 
+        
+        //dice al drone di uscire dalla bootstrap mode e andare in demo mode
+        //e quindi iniziare ad inviare a NAVDATA
         public void navdataDemoModeOn() {
             Console.WriteLine("esco dalla bootstrap");
             cmd = "AT*CONFIG=" + (seq++) + ",\"general:navdata_demo\",\"TRUE\"";
@@ -318,12 +314,12 @@ namespace ARDroneTest
         /* NON FUNZIONA!!! */
         //animazioni,m da 0 a 19
         //parametri: num. animazione, durata  in s(se 0 usa la durata di default)
-        public void playAnimation(int animNum) {
+        /*public void playAnimation(int animNum) {
 
             if (animNum < 0 || animNum > 19)
             {
                 Console.WriteLine("numero animazione fuori dai limiti![0-19]");
-            }
+            }*/
 
             /*
              * num  durata     animazione
@@ -347,7 +343,8 @@ namespace ARDroneTest
              *  16,17,18,19: 15 //FLIP forward, backward, left, right
              */
             
-            int[] MAYDAY_TIMEOUT = {
+            //durate di default delle singole animazioni
+            /*int[] MAYDAY_TIMEOUT = {
                 1000,
                 1000,
                 1000,
@@ -375,13 +372,13 @@ namespace ARDroneTest
             //cmd = "AT*CONFIG=" + (seq++) + ",\"control:flight_anim\",\"" + animNum + ",2000\"";
             cmd = "AT*CONFIG=" + (seq++) + ",\"control:flight_anim\",\"" + animNum + "," + duration + "\"";
             Console.WriteLine(cmd);
-        }
+        }*/
         
 
         /* NON FUNZIUONA */
         //animazioni dei led
         //parametri: num. animazione, frequenza e durata
-        public void playLedAnimation(int animNum) {
+        /*public void playLedAnimation(int animNum) {
             if (animNum < 0 || animNum > 13) {
                 Console.WriteLine("numero animazione fuori dai limiti![0-13]");
             }
@@ -397,7 +394,7 @@ namespace ARDroneTest
             
                 cmd = "AT*CONFIG=" + (seq++) + ",\"leds:leds_anim\",\"1,1073741824,2\"";
             Console.WriteLine(cmd);
-        }
+        }*/
         
 
     } //class ARDrone

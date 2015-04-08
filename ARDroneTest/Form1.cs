@@ -126,18 +126,15 @@ namespace ARDroneTest
                 {
                     ffplayProcessStarted = true;
 
-                    Thread.Sleep(3000); // you need to wait/check the process started, then...
+                    Thread.Sleep(3000); //aspetta che il thread parta
 
 
-                    // child, new parent
-                    // make 'this' the parent of ffmpeg (presuming you are in scope of a Form or Control)
+                    //fa diventare questa finestra "parent" di quella di ffplay appena avviata
                     SetParent(ffplay.MainWindowHandle, this.Handle);
 
 
-                    // window, x, y, width, height, repaint
-                    // move the ffplayer window to the top-left corner and set the size to 320x280
+                    //finestra di ffplay: posizione x,y, width, height, repaint = true
                    MoveWindow(ffplay.MainWindowHandle, 713, 314, 320, 280, true);
-                   //System.Threading.Timer timer = new System.Threading.Timer(_ => setParentWindowsCallback(), null, 0, 2000); //every 10 seconds
                    
                 }
                 else
@@ -152,15 +149,8 @@ namespace ARDroneTest
 
         }
 
-        //chiama la funziona WINAPI SetParentWindows per inserire la finestra di ffplay.exe dentro al form
-        private void setParentWindowsCallback() {
-            if (ffplay != null)
-            {
-                SetParent(ffplay.MainWindowHandle, this.Handle);
-                MoveWindow(ffplay.MainWindowHandle, 0, 0, 320, 280, true);
-            }
-        }
 
+        //pulsante decollo
         private void takeoffButton_Click(object sender, EventArgs e)
         {
             if (!drone.isConnectedToDrone()) {
@@ -175,12 +165,10 @@ namespace ARDroneTest
             {
                 status.Text = "Decollo effettuato" + " - comando inviato: " + drone.getSentCmd(); ;
             }
-            //drone.sendVideoStreamWakeup();
-            //showVideo();
-
 
         }
 
+        //pulsante atterraggio
         private void landButton_Click(object sender, EventArgs e)
         {
             if (!drone.isConnectedToDrone())
@@ -199,6 +187,7 @@ namespace ARDroneTest
 
         }
 
+        //pulsanti movimento:
         private void moveUpButton_Click(object sender, EventArgs e)
         {
             if (!drone.isConnectedToDrone())
@@ -295,6 +284,8 @@ namespace ARDroneTest
             }
         }
 
+        //chiamata automaticam. alla chiusura del form, chiude la finestra di ffplay
+        //prima di uscire, altrimenti resta aperta essendo un processo separato.
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
             //se chiudo ffplay e poi il form ho un eccezione NullPointer
@@ -303,12 +294,10 @@ namespace ARDroneTest
                 ffplay.Close();
             }
 
-
-            //fermo tutti i thread che aggiornano i dati in backgroud(navdata)
-            //timer.Dispose();
-            //timer2.Dispose();
         }
 
+
+        //Assetto piatto per calibrare giroscopio.
         private void buttonCalibra_Click(object sender, EventArgs e)
         {
             if (!drone.isConnectedToDrone())
@@ -330,6 +319,8 @@ namespace ARDroneTest
             }
         }
 
+
+        //Gestione comandi da tastiera:
         private void Form1_KeyDown(object sender, KeyEventArgs e)
         {
             if (!drone.isConnectedToDrone())
@@ -378,6 +369,7 @@ namespace ARDroneTest
             }
             else
             {
+                //se si preme un tasto non riconosciuto mando un hover
                 drone.hover();
             }
 
@@ -386,6 +378,7 @@ namespace ARDroneTest
             
         }
 
+        //pulsanti rotazione drone:
         private void rotateLeft_Click(object sender, EventArgs e)
         {
             drone.rotateLeft();
@@ -398,45 +391,10 @@ namespace ARDroneTest
             drone.sendCmd();
         }
 
-        private void playAnimation_Click(object sender, EventArgs e)
-        {
-            //Console.WriteLine("Selected Index: " + animationDrop.SelectedIndex);
 
-            drone.playAnimation(animationDrop.SelectedIndex );
-
-        }
-
-        private void comboBox2_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void playLEDAnim_Click(object sender, EventArgs e)
-        {
-
-            //Console.WriteLine("Selected Index: " + ledAnimationDrop.SelectedIndex);
-
-            drone.playLedAnimation(ledAnimationDrop.SelectedIndex );
-        }
-
-        private void button1_Click(object sender, EventArgs e)
-        {
-
-            nav.initNavdata(); //mando pkt wakeup
-
-
-
-        } //keyDown
-
-
-
-        private void receiveNavdata() {
-
-            //nav.receiveNavdata();
-
-        }
 
         //esce dalla bootstrap mode(navdata ridotti) ed entra in demo mode(=navdata al completo)
+        //viene chiamata all'inizio del programma da timer.
         private void exitBootstrapEnterDemoMode()
         {
             drone.navdataDemoModeOn();
@@ -444,30 +402,20 @@ namespace ARDroneTest
         }
 
 
-
-
         //funzione che periodicamente aggiorna legge i nav data inviati dal drone
         //e li inserisce nelle strutture dati della classe NavData
+        //chiamata da timer2.
         private void navdataPeriodicUpdate() {
 
             //legge navdata dal socket
             //N.B: receiveNavdata() è blocking!!
             if (!nav.receiveNavdata()) {
-                //non aggiorno niente e riprovo tra un po
-                //setNavdataBoxText("Can't receive NAVDATA!");
-
-
+                status.Text = "NAVDATA non ricevuti!";
                 return;
             }
 
             //aggiorna i dati
             nav.updateNavigationData();
-
-
-
-            //non aggiorna a schermo se non sono presenti dati nuovi inviati dal drone
-            //if (!nav.isNavdataAvailable())
-              //   return;
 
 
             //crea la stringa di testo coi dati da visualizzare
@@ -480,21 +428,20 @@ namespace ARDroneTest
             log += "Altitude: " + nav.getAltitude() + Environment.NewLine;
             log += "Velocity X: " + nav.getVX() + Environment.NewLine;
             log += "Velocity Y: " + nav.getVY() + Environment.NewLine;
-            log += "Velocity Z: " + nav.getVZ() + Environment.NewLine;
+            //log += "Velocity Z: " + nav.getVZ() + Environment.NewLine;
 
 
             //visualizza nella textbox la stringa prodotta
             setNavdataBoxText(log);
-
-
         }
 
 
 
-        //metodo delegato usato per riinvocare la funzione setNavDataBoxText all'interno del thread principale
+        //metodo delegato usato per reinvocare la funzione setNavDataBoxText all'interno del thread principale
         //nel caso venisse chiamata nel thread secondario(timer).
         private delegate void EventArgsDelegate(String txt);
 
+        //scrive  a schermo i valori
         private void setNavdataBoxText(String txt) {
 
             //per via dei timeout che chiamano periodicamente questa funzionela funzione navDataPeriodicUpdate()(che chima qst funz.)
@@ -502,7 +449,7 @@ namespace ARDroneTest
 
             //controllo se sono nel thread che ha creato navdataBox(thread principale)
             //se non ctrl. che navdataBox esista alla chiusura del form lancia un eccezione.
-            if (this.InvokeRequired && !navdataBox.IsDisposed && !this.IsDisposed )
+            if (this.InvokeRequired && !this.IsDisposed )
             {
                 try
                 {
@@ -519,25 +466,78 @@ namespace ARDroneTest
             {
 
                 //Ora sono in quello giusto, posso impostare il valore del testo
-                navdataBox.Text = txt;
+                //navdataBox.Text = txt; 
+                
+
+                //aggiorna le label, se sottyo 30% rosso
+                if (nav.getBatteryLevel() <= 30)
+                {
+                    batteryLabel.ForeColor = System.Drawing.Color.Red;
+                }
+                else {
+                    batteryLabel.ForeColor = System.Drawing.Color.Black;
+                }
+                
+                batteryLabel.Text = "Batteria: " + nav.getBatteryLevel() + "%";
+
+                pitchLabel.Text = "Pitch: " + nav.getPitch();
+                rollLabel.Text = "Roll: " + nav.getRoll();
+                yawLabel.Text = "Yaw: " + nav.getYaw();
+
+                altitudeLabel.Text = "Altitudine: " + nav.getAltitude();
+
+                vxLabel.Text = "Velocity X: " + nav.getVX();
+                vyLabel.Text = "Velocity Y: " + nav.getVY();
+
+
             }
         }
 
-
-
-        private void button2_Click(object sender, EventArgs e)
+        private void toolTip1_Popup(object sender, PopupEventArgs e)
         {
-            drone.navdataDemoModeOn();
-            drone.sendCmd();
+
         }
 
-        private void button3_Click(object sender, EventArgs e)
+        private void trackBar1_Scroll(object sender, EventArgs e)
         {
-            nav.receiveNavdata();
+            maxHLabel.Text = trackBar1.Value.ToString(); //scrivo il valore selez. sulla label
+
+            drone.setMaxAltitude(trackBar1.Value);
+            if( drone.isConnectedToDrone() )
+                drone.sendCmd();
+
         }
+
+        private void trackBar2_Scroll(object sender, EventArgs e)
+        {
+            int value0_100 = trackBar2.Value;
+            float value0_1 = (float)value0_100 / (float)100.0;
+
+            drone.setSpeed( value0_1 );
+            drone.setRotationSpeed(value0_1 * 2);
+
+            //scrivbo il val. selez. sulla label
+            speedLabel.Text = value0_1.ToString();
+
+            status.Text = "v=" + value0_1;
+
+        }
+
+        //togliere???...
+        private void v(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label8_Click(object sender, EventArgs e)
+        {
+
+        }
+
+
 
         //update data button
-        private void button4_Click(object sender, EventArgs e)
+        /*private void button4_Click(object sender, EventArgs e)
         {
             //non aggiorna se non sono presenti dati nuovi inviati dal drone
             if (!nav.isNavdataAvailable())
@@ -565,7 +565,7 @@ namespace ARDroneTest
             navdataBox.Text = log;
 
 
-        }
+        }*/
 
 
 

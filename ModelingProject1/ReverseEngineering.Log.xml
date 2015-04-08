@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="file:///C:/PROGRAM FILES (X86)/MICROSOFT VISUAL STUDIO 12.0/COMMON7/IDE/EXTENSIONS/MICROSOFT/ARCHITECTURE TOOLS/EXTENSIBILITY/Logging/ReverseEngineeringLog.xslt"?>
+<Log xmlns="http://schemas.microsoft.com/VisualStudio/2010/CodeGen.RE.Log" Label="Log generazione codice/trasformazione testo">
+  <MessageClass Name="Message" Label="Messaggio" Option="Mostra messaggi informativi" />
+  <MessageClass Name="Warning" Label="Avviso" Option="Mostra avvisi" />
+  <MessageClass Name="Error" Label="Errore" Option="Mostra errori" />
+  <MessageClass Name="Property" Label="Proprietà" Option="Mostra metadati" />
+  <MessageClass Name="Diagnostic" Label="Messaggio" Option="Mostra messaggi di diagnostica" />
+  <Message Timestamp="2015-04-08T14:07:20" Importance="High" Text="Decompilazione avviata." />
+  <Message Timestamp="2015-04-08T14:07:21" Importance="Diagnostic" Text="Elemento decompilato nel modello UML: 'Integer' - (PrimitiveType)" />
+  <Message Timestamp="2015-04-08T14:07:21" Importance="Diagnostic" Text="Elemento decompilato nel modello UML: 'ModelingProject1::ARDroneTest' - (Package)" />
+  <Message Timestamp="2015-04-08T14:07:21" Importance="Medium" Text="Elemento decompilato nel modello UML: 'ModelingProject1::ARDroneTest::NavigationDataStruct' - (Class)" />
+  <Message Timestamp="2015-04-08T14:07:21" Importance="Diagnostic" Text="Elemento decompilato nel modello UML: 'ModelingProject1::ARDroneTest::NavigationDataStruct::Altitude' - (Property)" />
+  <Message Timestamp="2015-04-08T14:07:21" Importance="Diagnostic" Text="Elemento decompilato nel modello UML: 'ModelingProject1::ARDroneTest::NavigationDataStruct::BatteryLevel' - (Property)" />
+  <Message Timestamp="2015-04-08T14:07:21" Importance="Diagnostic" Text="Elemento decompilato nel modello UML: 'ModelingProject1::ARDroneTest::NavigationDataStruct::ControlStatus' - (Property)" />
+  <Message Timestamp="2015-04-08T14:07:21" Importance="Diagnostic" Text="Elemento decompilato nel modello UML: 'ModelingProject1::ARDroneTest::NavigationDataStruct::NavigationDataStruct' - (Operation)" />
+  <Message Timestamp="2015-04-08T14:07:21" Importance="Diagnostic" Text="Elemento decompilato nel modello UML: 'ModelingProject1::ARDroneTest::NavigationDataStruct::Phi' - (Property)" />
+  <Message Timestamp="2015-04-08T14:07:21" Importance="Diagnostic" Text="Elemento decompilato nel modello UML: 'ModelingProject1::ARDroneTest::NavigationDataStruct::Psi' - (Property)" />
+  <Message Timestamp="2015-04-08T14:07:21" Importance="Diagnostic" Text="Elemento decompilato nel modello UML: 'ModelingProject1::ARDroneTest::NavigationDataStruct::Size' - (Property)" />
+  <Message Timestamp="2015-04-08T14:07:21" Importance="Diagnostic" Text="Elemento decompilato nel modello UML: 'ModelingProject1::ARDroneTest::NavigationDataStruct::Tag' - (Property)" />
+  <Message Timestamp="2015-04-08T14:07:21" Importance="Diagnostic" Text="Elemento decompilato nel modello UML: 'ModelingProject1::ARDroneTest::NavigationDataStruct::Theta' - (Property)" />
+  <Message Timestamp="2015-04-08T14:07:21" Importance="Diagnostic" Text="Elemento decompilato nel modello UML: 'ModelingProject1::ARDroneTest::NavigationDataStruct::VX' - (Property)" />
+  <Message Timestamp="2015-04-08T14:07:21" Importance="Diagnostic" Text="Elemento decompilato nel modello UML: 'ModelingProject1::ARDroneTest::NavigationDataStruct::VY' - (Property)" />
+  <Message Timestamp="2015-04-08T14:07:21" Importance="Diagnostic" Text="Elemento decompilato nel modello UML: 'ModelingProject1::ARDroneTest::NavigationDataStruct::VZ' - (Property)" />
+  <Message Timestamp="2015-04-08T14:07:21" Importance="Diagnostic" Text="Elemento decompilato nel modello UML: 'ModelingProject1::System' - (Package)" />
+  <Message Timestamp="2015-04-08T14:07:21" Importance="Diagnostic" Text="Elemento decompilato nel modello UML: 'ModelingProject1::System::Single' - (Class) (parzialmente decompilato, definizione non aggiornata) " />
+  <Message Timestamp="2015-04-08T14:07:21" Importance="Diagnostic" Text="Elemento decompilato nel modello UML: 'ModelingProject1::System::UInt16' - (Class) (parzialmente decompilato, definizione non aggiornata) " />
+  <Message Timestamp="2015-04-08T14:07:21" Importance="Diagnostic" Text="Elemento decompilato nel modello UML: 'ModelingProject1::System::UInt32' - (Class) (parzialmente decompilato, definizione non aggiornata) " />
+  <Message Timestamp="2015-04-08T14:07:21" Importance="High" Text="(1) tipi completamente decompilati." />
+  <Message Timestamp="2015-04-08T14:07:21" Importance="High" Text="(3) tipi parzialmente decompilati. Questi tipi non sono inclusi nella selezione originale, pertanto le relative selezioni non sono state decompilate. Questa operazione superficiale ha invece semplicemente garantito che questi tipi esistano nel modello UML poiché sono necessari per descrivere altri elementi." />
+  <Message Timestamp="2015-04-08T14:07:21" Importance="High" Text="Operazione di decompilazione avviata con (0) errori e (0) avvisi." />
+</Log>

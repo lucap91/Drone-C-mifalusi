@@ -19,6 +19,7 @@ namespace ARDroneTest
          * Struttura di un pacchetto contenente i navdata
          * LayoutKind.Seq specifica che in memoria i campi saranno nell'ordine di dichiarazione
          * Pack = 1 specifica l'allineamento sul singolo byte, cioè tutti i campi sono consecutivi, senza gap in memoria.
+         * (l'assegnazione unsafe non è stata usata)
          */
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
         public struct NavigationDataHeaderStruct
@@ -49,19 +50,18 @@ namespace ARDroneTest
             public Single VZ;
         }
 
-
-
-
+        //oggetti usati per conservare i NAVDATA
         private NavigationDataHeaderStruct navDataHeaderStruct;
         public NavigationDataStruct navDataStruct;            //da aggiornare a ogni pkt ricevuto
 
 
-        private Socket wakeup;
+
+        private Socket navdataSocket;
         private IPAddress ipAddr;
         private static int navdataPort = 5554;
         private string ardroneIP = "192.168.1.1";
 
-        private EndPoint drone;
+        //private EndPoint drone;
         private IPEndPoint sender;
 
         private byte[] data;    //buffer contenente il payload del pkt ricevuto
@@ -71,6 +71,7 @@ namespace ARDroneTest
 
         //ritorna true quando ci sono dei nuovi dati aggiornati, se ci sono ancora i vecchi ritorna false
         public bool isNavdataAvailable() { return dataReceived; }
+
 
 
         //metodi getter
@@ -113,7 +114,8 @@ namespace ARDroneTest
 
 
 
-
+        //invia il pkt di wakeup per dire al drone di iniziare a 
+        //inviare pkt NAVDATA
         public void initNavdata() {
 
             dataReceived = false;
@@ -122,18 +124,18 @@ namespace ARDroneTest
 
 
             sender = new IPEndPoint(IPAddress.Any, navdataPort);
-            drone = (EndPoint)sender;
+            //drone = (EndPoint)sender;
 
 
-            //invia pkt di wakeup
+            //invia pkt di navdataSocket
             byte[] wkpbuf = {1,0,0,0};
 
-            wakeup = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-            //wakeup.Bind(drone);
+            navdataSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+            //navdataSocket.Bind(drone);
             
-            wakeup.Connect(ipAddr, navdataPort);
+            navdataSocket.Connect(ipAddr, navdataPort);
             try {
-                wakeup.Send(wkpbuf);
+                navdataSocket.Send(wkpbuf);
             } catch( SocketException se ) {
                 Console.WriteLine( se.ToString() );
             }
@@ -148,11 +150,10 @@ namespace ARDroneTest
 
             //controlla se sono arrivati dei pkt
             //altrim. ritorna immediatamente
-            if (wakeup.Available <= 0)
+            if (navdataSocket.Available <= 0)
                 return false;
 
 
-           //Console.WriteLine("Ready to receive…");
             data = new byte[1024];
 
             int recv = 0;
@@ -160,7 +161,7 @@ namespace ARDroneTest
 
                 //legge i dati in un buffer. 
                 //N.B: Receive è un metodo che blocca il thread.
-                recv = wakeup.Receive(data);
+                recv = navdataSocket.Receive(data);
                    
             } catch(Exception e) {
                 Console.WriteLine(e.ToString());
@@ -168,23 +169,21 @@ namespace ARDroneTest
             }
 
 
-            //string stringData = BitConverter.ToString(data);
-            //Console.WriteLine("received: {0}: ",  stringData);
-
             dataReceived = true;
 
             return true; //dati ricevuti corretamente
-
         }
 
 
 
         //chiude stream navdata
         private void disconnectNavdata() {
-            wakeup.Close();
+            navdataSocket.Close();
         }
 
 
+        /* metodi per convertire byte ricevuti col socket
+         * in interi signed e non e float(Single).*/
 
         //dato un buffer e startPos, prende i 4 byte da buf[startPos] a buf[startPos+3]
         //li trasforma in un uint a 32 bit e lo ritorna
@@ -197,9 +196,6 @@ namespace ARDroneTest
                 intBuf[i] = buf[startPos+i]; 
             }
 
-            //l'array è little endian quindi inverto l'ordine dei byte
-            //if (BitConverter.IsLittleEndian)
-              //  Array.Reverse(intBuf);
             
             //converto i 4 byte in un uint
             uint j = BitConverter.ToUInt32(intBuf, 0);
@@ -222,10 +218,6 @@ namespace ARDroneTest
                 intBuf[i] = buf[startPos + i];
             }
 
-            //l'array è little endian quindi inverto l'ordine dei byte
-            //if (BitConverter.IsLittleEndian)
-            //    Array.Reverse(intBuf);
-
             //converto i 4 byte in un uint
             int j = BitConverter.ToInt32(intBuf, 0);
 
@@ -246,10 +238,6 @@ namespace ARDroneTest
             intBuf[0] = buf[startPos];
             intBuf[1] = buf[startPos + 1];
 
-            //l'array è little endian quindi inverto l'ordine dei byte
-            //if (BitConverter.IsLittleEndian)
-            //    Array.Reverse(intBuf);
-
             //converto i 2 byte in un uint
             ushort j = (ushort)BitConverter.ToInt16(intBuf, 0);
 
@@ -261,6 +249,7 @@ namespace ARDroneTest
         //dato un buffer e startPos, prende i 4 byte da buf[startPos] a buf[startPos+1]
         //li trasforma in un float a 32 bit e lo ritorna
         //se non riesce ritorna null.
+        //N.B: Single = float
         private Single getSingleFromBytes(byte[] buf, int startPos)
         {
             //drone codifica i float come interi, leggo prima come intero i 4 bytes
@@ -270,30 +259,11 @@ namespace ARDroneTest
             byte[] floatBuf = { 0, 0, 0, 0 }; //creo un buf. temp. di 4 byte
             floatBuf = BitConverter.GetBytes(i);
 
-            /*floatBuf[0] = buf[startPos];
-            floatBuf[1] = buf[startPos+1];
-            floatBuf[2] = buf[startPos+2];
-            floatBuf[3] = buf[startPos+3];*/
-
-            //Console.WriteLine("converting to float: [{0},{1},{2},{3}]", floatBuf[0], floatBuf[1], floatBuf[2], floatBuf[3]);
 
             Single f = BitConverter.ToSingle(floatBuf, 0);
             return f;
 
-            //faccio operazione inversa di Ardrone.intOfFloat()
-
-            //ricavo intero dai 4 byte - es.  1175624704
-            /*int tmp = getInt32FromBytes(buf, startPos);
-
-            //poi lo converto in un float IEEE754:
-            //scompone il float nei 4 byte che lo compongono
-            byte[] buffer = BitConverter.GetBytes(tmp);
-
-            //interpreta i 4 byte come un intero e ritorna
-            return BitConverter.ToSingle(buffer, 0);*/
         }
-
-
 
 
 
@@ -325,17 +295,10 @@ namespace ARDroneTest
             }
 
 
-            /*Console.WriteLine("header value=" + navDataHeaderStruct.Header);
-            Console.WriteLine("status value=" + navDataHeaderStruct.Status);
-            Console.WriteLine("seq. num. value =" + navDataHeaderStruct.SequenceNumber);
-            Console.WriteLine("vision value=" + navDataHeaderStruct.Vision);*/
-
-
-
             /*
              * N.B: qui sto supponendo le seguenti cose:
-             *  -c'è sempre option1 al primo posto
-             *  -non mi interesso delle altre opzioni
+             *  -c'è sempre option1 al primo posto nel payload del pklt UDP
+             *  -non mi interesso delle altre opzioni, un eventuale parsing di esso andrebbe aggiunto qui.
              *  
              * Per il parsing completo serve un while che salta itera tra le opzioni
              * salvando ognuno in una struttura option e funzioni di parsing per ognuna di esse.
@@ -354,7 +317,7 @@ namespace ARDroneTest
              * height
              * vx
              * vy
-             * vz
+             * vz( sempre a 0 in demo mode, bisogna attivare info. dettagliate per averla)
              */
             navDataStruct.Tag = getUshort16FromBytes(data, 16);
             navDataStruct.Size = getUshort16FromBytes(data, 18);
@@ -371,12 +334,7 @@ namespace ARDroneTest
             navDataStruct.VX = getSingleFromBytes(data, 44);
             navDataStruct.VY = getSingleFromBytes(data, 48);
             navDataStruct.VZ = getSingleFromBytes(data, 52);    //non disponibile in demo_mode
-
-            Console.WriteLine();
-            //Console.WriteLine("battery level=" + navDataStruct.BatteryLevel);
-
-
-
+            
 
             //una volta parsati i dati disponibili diventano vecchi,
             //dataReceived ridiventerà true quando ne riceverò di nuovi dal drone
